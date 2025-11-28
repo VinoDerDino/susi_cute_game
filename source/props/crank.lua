@@ -13,7 +13,7 @@ function Crank:init(x, y, connectedProp)
 
     self.connectedProp = connectedProp
 
-    self.images = gfx.imagetable.new("assets/images/spritesheets/crank")
+    self.images = gfx.imagetable.new("assets/images/props/crank")
     self:setImage(self.images:getImage(1))
 
     self.imageIndex = 1
@@ -22,7 +22,7 @@ function Crank:init(x, y, connectedProp)
     self:setCenter(0.5, 1)
     self:moveTo(x, y)
 
-    local nineSlice = gfx.nineSlice.new("assets/images/nineslice-kenney-1", 4, 4, 8, 8)
+    local nineSlice = gfx.nineSlice.new("assets/images/ui/nineslice-kenney-1", 4, 4, 8, 8)
     self.infoDialogueConfig = {
         width = 120,
         height = 18,

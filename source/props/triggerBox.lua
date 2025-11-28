@@ -16,7 +16,6 @@ function TriggerBox:handleTrigger()
     if self.oneTime and self.hasTriggered then
         return
     end
-    print("TriggerBox triggered:", self.toEmit)
     EventSystem:emitEvent(self.toEmit, self.data)
     self.hasTriggered = true
 end

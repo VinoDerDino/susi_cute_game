@@ -16,7 +16,6 @@ function EventSystem:removeListener(listener)
 end
 
 function EventSystem:emitEvent(eventName, data)
-    print("Event emitted: " .. eventName)
     for _, listener in ipairs(self.listeners) do
         if listener.catchEvent then
             listener:catchEvent(eventName, data)

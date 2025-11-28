@@ -8,7 +8,7 @@ local gfx <const> = playdate.graphics
 function Platform:init(startX, startY, endX, endY)
     Platform.super.init(self, startX, startY, endX, endY)
 
-    self.images = gfx.imagetable.new("assets/images/spritesheets/platform")
+    self.images = gfx.imagetable.new("assets/images/props/platform")
     self:setImage(self.images:getImage(1))
     self:setZIndex(500)
     self:setCenter(0.5, 1)
@@ -40,4 +40,19 @@ function Platform:update()
     )
 
     self.lastPosition = Point.new(self.currentPosition.x, self.currentPosition.y)
+end
+
+function Platform:debugDraw()
+    local roomX = math.floor(self.x / 400)
+    local roomY = math.floor(self.y / 240)
+
+    local r = self:getCollideRect()
+    local sx, sy = self:getPosition()
+    local cx, cy = self:getCenter()
+    local w, h = self:getSize()
+
+    local x = (sx - (w * cx) + r.x) - 400 * roomX
+    local y = (sy - (h * cy) + r.y) - 240 * roomY
+
+    playdate.graphics.drawRect(x, y, r.width, r.height)
 end

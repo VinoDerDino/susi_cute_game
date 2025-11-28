@@ -9,7 +9,7 @@ function MovingTile:init(startX, startY, endX, endY)
 
     MovingTile.super.init(self, trueX, trueY, endX, endY)
 
-    self:setImage(playdate.graphics.image.new("assets/images/spritesheets/movingTile"))
+    self:setImage(playdate.graphics.image.new("assets/images/props/movingTile"))
 
     self:setCollideRect(0, 0, DIMENSION, DIMENSION)
     self:setZIndex(500)

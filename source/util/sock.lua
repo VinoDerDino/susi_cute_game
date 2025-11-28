@@ -1,3 +1,5 @@
+import 'CoreLibs/timer'
+
 class("Sock").extends(playdate.graphics.sprite)
 
 local gfx <const> = playdate.graphics
@@ -45,19 +47,25 @@ function Sock:init(id)
     Sock.super.init(self)
 
     self.sock_id = id
-    self.images = gfx.imagetable.new("assets/images/spritesheets/socks")
+    self.images = gfx.imagetable.new("assets/images/socks/socks")
     self:setImage(self.images:getImage(SOCK_NOT_FOUND))
+
+    print("Sock id:", id)
 
     local pos = positions[id]
 
     self:moveTo(pos.x, pos.y)
 
     self:setCenter(0, 0)
+    self:setCollideRect(0, 0, 20, 20)
     self:setZIndex(1000)
 
     self.owned = false
 
     self.dialogueBox = nil
+
+
+    self.floatOffset = 0
 
     self:setupPopupText()
 end
@@ -102,6 +110,19 @@ end
 function Sock:showPopupText()
     if self.dialogueBox then
        self.dialogueBox:enable()
+    end
+end
+
+function Sock:drawAt(x, y)
+    self.images:getImage(self.owned and self.sock_id or SOCK_NOT_FOUND):draw(x, y)
+end
+
+function Sock:reset()
+    self:moveTo(positions[self.sock_id].x, positions[self.sock_id].y)
+    if self.owned then
+        self:setImage(self.images:getImage(self.sock_id))
+    else
+        self:setImage(self.images:getImage(SOCK_NOT_FOUND))
     end
 end
 

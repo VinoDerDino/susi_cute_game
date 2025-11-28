@@ -54,10 +54,7 @@ end
 function NPC:interact(skipPlayerNearCheck)
     skipPlayerNearCheck = skipPlayerNearCheck or false
     if not skipPlayerNearCheck then
-        if not self.isPlayerNear then
-            print("Player not near")
-            return
-        end
+        if not self.isPlayerNear then return end
     end
 
     local step = self.sequence[self.currentStepId]
@@ -88,56 +85,6 @@ local function getFirstStep(config)
     end
 end
 
-function NPC:loadConfigOld(config)
-    local stepMap = {}
-    local firstStep = nil
-
-    for _, step in ipairs(config) do
-        stepMap[step.id] = step
-    end
-
-    firstStep = getFirstStep(config)
-    if not firstStep then
-        return
-    end
-
-    self.sequence = {}
-    local currentStep = firstStep
-
-    while currentStep do
-        local nextStepId = getProperty(currentStep, "nextStep", false)
-        local nextStep = nil
-        if nextStepId and nextStepId ~= 0 then
-            nextStep = stepMap[nextStepId]
-        else
-            nextStepId = nil
-        end
-
-        local onDialogueEnd = {}
-        if nextStep then
-            table.insert(onDialogueEnd, "goToNextStep")
-        end
-
-        table.insert(onDialogueEnd, getProperty(currentStep, "onDialogueEnd", nil))
-
-        self.sequence[currentStep.id] = {
-            position = Point.new(currentStep.x, currentStep.y),
-            dialogue = getProperty(currentStep, "dialogue", nil),
-            onDialogueEnd = onDialogueEnd,
-            waitFor = getProperty(currentStep, "waitFor", nil),
-            action = getProperty(currentStep, "action", nil),
-            nextStepId = nextStepId
-        }
-
-        print("Loaded NPC step: " .. tostring(currentStep.id))
-
-        currentStep = nextStep
-    end
-
-    self.currentStepId = firstStep.id
-    self:applyCurrentStep()
-end
-
 function NPC:loadConfig(config)
     local stepMap = {}
     local firstStep = getFirstStep(config)
@@ -146,12 +93,10 @@ function NPC:loadConfig(config)
         return
     end
 
-    -- Schritt 1: Baue Lookup-Tabelle (alle Steps)
     for _, step in ipairs(config) do
         stepMap[step.id] = step
     end
 
-    -- Schritt 2: Lade ALLE steps in self.sequence (nicht nur Kette!)
     self.sequence = {}
 
     for id, step in pairs(stepMap) do
@@ -164,7 +109,6 @@ function NPC:loadConfig(config)
             nextStepId = getProperty(step, "nextStep", nil)
         }
 
-        -- nextStepId Validierung
         local nextId = self.sequence[id].nextStepId
         if nextId == 0 or nextId == false then
             self.sequence[id].nextStepId = nil
@@ -174,7 +118,6 @@ function NPC:loadConfig(config)
         end
     end
 
-    -- Schritt 3: Füge automatische "goToNextStep" Events ein
     for id, entry in pairs(self.sequence) do
         local events = {}
 
@@ -190,14 +133,16 @@ function NPC:loadConfig(config)
         entry.onDialogueEnd = events
     end
 
-    -- Schritt 4: Setze den Startstep
     self.currentStepId = firstStep.id
     self:applyCurrentStep()
 end
 
 function NPC:applyCurrentStep()
     local step = self.sequence[self.currentStepId]
-    if not step then return end
+    if not step then
+        print("NPC applyCurrentStep: stepId " .. tostring(self.currentStepId) .. " does not exist.")
+        return
+    end
 
     self:place(step.position.x, step.position.y)
 
@@ -225,16 +170,25 @@ function NPC:applyCurrentStep()
             if step.onDialogueEnd then
                 for _, cmd in ipairs(step.onDialogueEnd) do
                     if cmd == "goToNextStep" and not step.waitFor then
+                        print("REALY GOING TO NEXT STEP")
                         self.npc:goToNextStep()
                     elseif cmd == "goToSameStep" then
                         self.npc:applyCurrentStep()
                     elseif cmd == "enableCranking" then
                         GameState:unlock("cranking")
+                    elseif cmd == "enableTwines" then
+                        GameState:unlock("twineGrowth")
+                    elseif cmd == "endLevel" then
+                        GameState:setState(GameState.states.MENU)
+                    else
+                        EventSystem:emitEvent(cmd)
                     end
                 end
             else
                 self.npc:goToNextStep()
             end
+
+            self.isPlayerNear = false
         end
 
         self.dialogueBox.npc = self
@@ -252,9 +206,7 @@ end
 
 function NPC:goToNextStep()
     local nextStepId = self.sequence[self.currentStepId].nextStepId
-    if not nextStepId then
-        return
-    end
+    if not nextStepId then return end
 
     self.currentStepId = nextStepId
     self:applyCurrentStep()

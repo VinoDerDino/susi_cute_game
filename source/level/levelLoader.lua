@@ -6,6 +6,8 @@ import 'props/movingTile'
 import 'props/twine'
 import 'props/spike'
 import 'props/brick'
+import 'props/floatingPlatform'
+import 'props/sock'
 
 function getJSONTableFromTiledFile(path)
 
@@ -149,9 +151,8 @@ end
 
 local objectCreators = {
     Door = function(objData, objectsById, objectTable, cache)
-        local direction = getProperty(objData, "direction") or "down"
         local emitEvent = getProperty(objData, "emitEvent") or nil
-        local door = Door(objData.x , objData.y, objData.height, direction, emitEvent)
+        local door = Door(objData.x , objData.y, objData.height, emitEvent)
         return door
     end,
 
@@ -164,6 +165,16 @@ local objectCreators = {
         local platform = Platform(objData.x, objData.y, endPoint.x, endPoint.y)
         table.insert(objectTable, platform)
         return platform
+    end,
+
+    FloatingPlatform = function(objData, objectsById, objectTable, cache)
+        local endPointId = getProperty(objData, "endPoint")
+        local endPoint = getObjectById(objectsById, endPointId, "Platform")
+        if not endPoint then return nil end
+
+        local floatingPlatform = FloatingPlatform(objData.x, objData.y, endPoint.y)
+        table.insert(objectTable, floatingPlatform)
+        return floatingPlatform
     end,
 
     Crank = function(objData, objectsById, objectTable, cache)
@@ -216,9 +227,22 @@ local objectCreators = {
     end,
 
     Brick = function(objData, objectsById, objectTable, cache)
-        local brick = Brick(objData.x, objData.y)
+        local disappearsOn = getProperty(objData, "disappearsOn") or nil
+        local brick = Brick(objData.x, objData.y, disappearsOn)
         table.insert(objectTable, brick)
         return brick
+    end,
+
+    SockProp = function(objData, objectsById, objectTable, cache)
+        local sockId = getProperty(objData, "id")
+        if not sockId then
+            print("WARNING: SockProp missing sockId property for object id: " .. tostring(objData.id))
+            return nil
+        end
+
+        local sockProp = SockProp(sockId, objData.x, objData.y)
+        table.insert(objectTable, sockProp)
+        return sockProp
     end,
 }
 
@@ -309,4 +333,16 @@ function importSpikesFromTiledJSON(jsonTable)
     end
 
     return spikes
+end
+
+function getMapPropertiesFromTiledJSON(jsonTable)
+    local jsonProperties = jsonTable.properties
+    if not jsonProperties then return nil end
+    local properties = {}
+
+    for _, prop in ipairs(jsonProperties) do
+        properties[prop.name] = prop.value
+    end
+
+    return properties
 end

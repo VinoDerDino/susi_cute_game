@@ -27,7 +27,7 @@ function Cranking:init(x, y)
     self.progressBar:setCenter(0.5, 1)
     self.progressBar:moveTo(x, y - 30)
     self.progressBar:setVisible(false)
-    self.progressBar:addSprite()
+    self.progressBar:add()
 
     self.roomX = math.floor(x / 400) + 1
     self.roomY = math.floor(y / 240) + 1

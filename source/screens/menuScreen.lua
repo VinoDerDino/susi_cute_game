@@ -6,14 +6,11 @@ function MenuScreen:init()
     MenuScreen.super.init(self)
 
     self.buttons = {
-        Button(200, 80, 200, 40, "Start Game", function()
-            GameState:setState(GameState.states.LEVEL)
+        Button(200, 140, 200, 40, "Level Auswahl", function()
+            GameState:setState(GameState.states.LEVEL_MENU)
         end),
-        Button(200, 140, 200, 40, "Socks", function()
+        Button(200, 200, 200, 40, "Deine Socken", function()
             GameState:setState(GameState.states.SOCKS)
-        end),
-        Button(200, 200, 200, 40, "Options", function()
-            print("Options button pressed")
         end),
     }
 
@@ -22,9 +19,9 @@ end
 
 function MenuScreen:show()
     for _, button in ipairs(self.buttons) do
-        button:addSprite()
+        button:add()
     end
-    self:addSprite()
+    self:add()
 end
 
 function MenuScreen:hide()

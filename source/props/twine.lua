@@ -9,7 +9,7 @@ local gfx <const> = playdate.graphics
 function Twine:init(x, y, endY)
     Twine.super.init(self, x, y)
 
-    self.images = gfx.imagetable.new("assets/images/spritesheets/twine")
+    self.images = gfx.imagetable.new("assets/images/props/twine")
     self:setImage(self.images:getImage(1))
     self:setZIndex(500)
     self:setCenter(0.5, 1)
@@ -63,7 +63,7 @@ function Twine:update()
         else
             self:updateProgressBarImage()
         end
-    else
+    elseif not self.fullGrown then
         self.progressBar:setVisible(false)
         self.idleTimer += 1
         if self.idleTimer >= 20 then

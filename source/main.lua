@@ -9,22 +9,21 @@ import 'dialogue/pdDialogue'
 import 'util/soundManager'
 import 'game_state'
 import 'eventSystem'
-import 'screens/menuScreen'
-import 'screens/sockScreen'
 
 local gfx <const> = playdate.graphics
 
 local function setup()
     playdate.display.setRefreshRate(50)
 
+    GameState:init()
     -- GameState:load()
-    GameState.game.menuScreen = MenuScreen()
-    GameState.game.sockScreen = SockScreen()
-    GameState:setState(GameState.states.MENU)
 
     local menu = playdate.getSystemMenu()
-    local menuItem, error = menu:addCheckmarkMenuItem("Timer", true, function(value)
+    local menuItem, error = menu:addCheckmarkMenuItem("Timer", GameState.data.settings.speedrunTimer, function(value)
         GameState:setSetting("speedrunTimer", value)
+    end)
+    local menuItem2, error2 = menu:addMenuItem("Menu", function()
+        GameState:setState(GameState.states.MENU)
     end)
 end
 
@@ -35,6 +34,10 @@ function playdate.update()
     gfx.setColor(gfx.kColorWhite)
     playdate.drawFPS(0,0)
     gfx.setColor(gfx.kColorBlack)
+end
+
+function playdate.debugDraw()
+    GameState:debugDraw()
 end
 
 function playdate.gameWillTerminate()

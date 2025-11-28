@@ -1,4 +1,9 @@
 import 'level/level'
+import 'util/sock'
+
+import 'screens/menuScreen'
+import 'screens/sockScreen'
+import 'screens/levelPickerScreen'
 
 local gfx <const> = playdate.graphics
 
@@ -8,50 +13,49 @@ GameState.filename = "susi_game_state"
 GameState.data = {
     unlocked = {
         cranking = false,
-        wallJumping = false,
-        dashing = false,
-        twineGrowth = true,
+        twineGrowth = false,
     },
     settings = {
-        speedrunTimer = true,
-    },
-    stats = {
-        totalPlaytime = 0,
-        totalPlaytimes = {
-            level1 = 0,
-        },
-        bestPlaytimes = {
-            level1 = nil,
-        }
+        speedrunTimer = false,
     },
     level = {
-        level1 = {
-            unlocked = true,
-            socks = {
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-            }
-        },
-        level2 = {
-            unlocked = false,
-            socks = {
-                [6] = false,
-                [7] = false,
-                [8] = false,
-                [9] = false,
-                [10] = false,
-            }
-        },
-    }
+        level1 = true,
+        level2 = false,
+    },
+    socks = {
+        [1] = false,
+        [2] = false,
+        [3] = false,
+        [4] = false,
+        [5] = false,
+        [6] = false,
+        [7] = false,
+        [8] = false,
+        [9] = false,
+        [10] = false,
+        [11] = false,
+        [12] = false,
+        [13] = false,
+        [14] = false,
+        [15] = false,
+        [16] = false,
+        [17] = false,
+        [18] = false,
+        [19] = false,
+        [20] = false,
+        [21] = false,
+        [22] = false,
+        [23] = false,
+        [24] = false,
+        [25] = false,
+    },
 }
 
 GameState.game = {
     currentLevel = nil,
     sockScreen = nil,
     menuScreen = nil,
+    levelMenuScreen = nil,
 }
 
 GameState.states = {
@@ -60,6 +64,8 @@ GameState.states = {
     LEVEL_MENU = 3,
     LEVEL = 4,
 }
+
+GameState.socks = {}
 
 GameState.currentState = nil
 
@@ -72,6 +78,13 @@ end
 
 function GameState:save()
     pcall(playdate.datastore.write, self.data, self.filename)
+end
+
+function GameState:setMultiUnlocks(unlockTable)
+    for key, value in pairs(unlockTable) do
+        self.data.unlocked[key] = value
+    end
+    -- self:save()
 end
 
 function GameState:unlock(key)
@@ -100,7 +113,8 @@ end
 
 function GameState:setCurrentLevel(levelId)
     local levelPaths = {
-        "assets/maps/level_1_with_objects.json",
+        "assets/maps/level_1.json",
+        "assets/maps/level_2.json",
     }
 
     if levelPaths[levelId] then
@@ -122,6 +136,10 @@ function GameState:setState(state)
         if self.game.menuScreen then
             self.game.menuScreen:hide()
         end
+    elseif self.currentState == self.states.LEVEL_MENU then
+        if self.game.levelMenuScreen then
+            self.game.levelMenuScreen:hide()
+        end
     elseif self.currentState == self.states.SOCKS then
         if self.game.sockScreen then
             self.game.sockScreen:hide()
@@ -130,20 +148,23 @@ function GameState:setState(state)
 
     self.currentState = state
 
-    if self.currentState == self.states.LEVEL then
-        print("Cranking enabled: ", GameState.data.unlocked.cranking)
-        if not self.game.currentLevel then
-            self:setCurrentLevel(1)
-        end
-    elseif self.currentState == self.states.MENU then
+    if self.currentState == self.states.MENU then
         if self.game.menuScreen then
             self.game.menuScreen:show()
+        end
+    elseif self.currentState == self.states.LEVEL_MENU then
+        if self.game.levelMenuScreen then
+            self.game.levelMenuScreen:show()
         end
     elseif self.currentState == self.states.SOCKS then
         if self.game.sockScreen then
             self.game.sockScreen:show()
         end
     end
+end
+
+function GameState:isInState(state)
+    return self.currentState == state
 end
 
 function GameState:draw()
@@ -169,6 +190,9 @@ function GameState:draw()
         elseif state == self.states.SOCKS and self.game.sockScreen then
             gfx.sprite.update()
             self.game.sockScreen:draw()
+        elseif state == self.states.LEVEL_MENU and self.game.levelMenuScreen then
+            gfx.sprite.update()
+            self.game.levelMenuScreen:draw()
         else
             gfx.popContext()
             return
@@ -176,6 +200,40 @@ function GameState:draw()
     gfx.popContext()
 
     screenImage:invertedImage():draw(0,0)
+end
+
+function GameState:debugDraw()
+    local state = self.currentState
+
+    if state == nil then return end
+
+    if state == self.states.LEVEL and self.game.currentLevel then
+        self.game.currentLevel:debugDraw()
+    end
+end
+
+function GameState:init()
+    self.game.menuScreen = MenuScreen()
+    self.game.sockScreen = SockScreen()
+    self.game.levelMenuScreen = LevelPickerScreen()
+    self.socks = {}
+    for i = 1, 25 do
+        self.socks[i] = Sock(i)
+        self.socks[i].owned = self.data.socks[i]
+    end
+    self:setState(self.states.MENU)
+end
+
+function GameState:catchEvent(eventName, eventData)
+    if eventName == "enableSecondLevel" then
+        self.data.level.level2 = true
+        self:setState(self.states.LEVEL_MENU)
+    elseif eventName == "enableThirdLevel" then
+        self.data.level.level3 = true
+        self:setState(self.states.LEVEL_MENU)
+    elseif eventName == "endLevel" then
+        self:setState(self.states.LEVEL_MENU)
+    end
 end
 
 _G.GameState = GameState

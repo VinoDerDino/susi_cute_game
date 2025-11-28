@@ -12,14 +12,14 @@ local GRAVITY_CONSTANT <const> = 1600
 local Point <const> = playdate.geometry.point
 local vector2D <const> = playdate.geometry.vector2D
 
-function Player:init()
+function Player:init(x, y)
     Player.super.init(self)
 
-    self.images = playdate.graphics.imagetable.new("assets/images/spritesheets/susi")
+    self.images = playdate.graphics.imagetable.new("assets/images/player/susi")
     self:setImage(self.images:getImage(2))
     self:setZIndex(1000)
     self:setCenter(0.5, 1)
-    self:setCollideRect(2, 0, 20, 20)
+    self:setCollideRect(0, 0, 20, 20)
     -- self:setImageDrawMode(gfx.kDrawModeInverted)
 
     self.jumpTimer = playdate.frameTimer.new(10, 50, 30, playdate.easingFunctions.outQuad)
@@ -27,13 +27,12 @@ function Player:init()
     self.jumpTimer:pause()
     self.jumpTimer.active = false
 
-    self.wallJumpsMax = 1
-    self.wallJumps = 1
-    self.canWallJump = false
-
     self.inputsEnabled = true
 
-    self.respawnPoint = Point.new(50, 50)
+    local spawnX = x or 50
+    local spawnY = y or 50
+
+    self.respawnPoint = Point.new(spawnX, spawnY)
 
     self.isClimbing = false
     self.isMoving = false
@@ -49,11 +48,12 @@ function Player:init()
 
     self.isDead = false
 
-    self:reset()
+    self:reset(x, y)
 end
 
-function Player:reset()
-    self.position = Point.new(50, 50)
+function Player:reset(x, y)
+    -- self.position = Point.new(x or 50, y or 50) -- spawn level 1
+    self.position = Point.new(x or 970, y or 600) -- spawn level 2
     self.velocity = vector2D.new(0, 0)
     self:moveTo(self.position.x, self.position.y)
 
@@ -77,7 +77,7 @@ function Player:setRespawnPoint(x, y)
 end
 
 function Player:collisionResponse(other)
-    if other:isa(Prop) or other:isa(TriggerBox) or other:isa(Twine) then
+    if other:isa(Prop) or other:isa(TriggerBox) or other:isa(Twine) or other:isa(SockProp) then
         return 'overlap'
     end
 
@@ -101,7 +101,7 @@ end
 function Player:performJump()
     self.velocity.y = JUMP_VELOCITY
     if self.onPlatform then
-        self.position.y = self.onPlatform.y - self.onPlatform.height - 2
+        self:moveTo(self.position.x, self.position.y - 2)
     end
     self:setOnGround(false)
 
@@ -116,11 +116,10 @@ end
 function Player:jump()
     if self.onGround or self.isClimbing then
         self:performJump()
-    elseif self.wallJumps > 0 and self.canWallJump then
-        self:performJump()
-        self.wallJumps -= 1
-        self.velocity.x = self.facing == "left" and WALK_VELOCITY * 1.5 or -WALK_VELOCITY * 1.5
+        return true
     end
+
+    return false
 end
 
 function Player:continueJump()
@@ -130,9 +129,10 @@ function Player:continueJump()
     self.velocity.y -= self.jumpTimer.value
 end
 
-function Player:resetWallJumps()
-    self.wallJumps = self.wallJumpsMax
-    self.canWallJump = false
+
+
+function Player:resetDoubleJump()
+    self.doubleJumpAvailable = true
 end
 
 function Player:pound()
@@ -258,8 +258,9 @@ function Player:normalMovement()
     end
 
     if playdate.buttonJustPressed(playdate.kButtonA) and self.movementEnabled  then
-        self:jump()
-        SoundManager:playSound(SoundManager.kJump)
+        if self:jump() then
+            SoundManager:playSound(SoundManager.kJump)
+        end
     elseif playdate.buttonIsPressed(playdate.kButtonA) and self.movementEnabled then
         self:continueJump()
     end
@@ -305,4 +306,19 @@ function Player:update()
     if self.interactDepleation <= 0 then
         self:setInteracting(false)
     end
+end
+
+function Player:debugDraw()
+    local roomX = math.floor(self.position.x / 400)
+    local roomY = math.floor(self.position.y / 240)
+
+    local r = self:getCollideRect()
+    local sx, sy = self:getPosition()
+    local cx, cy = self:getCenter()
+    local w, h = self:getSize()
+
+    local x = (sx - (w * cx) + r.x) - 400 * roomX
+    local y = (sy - (h * cy) + r.y) - 240 * roomY
+
+    playdate.graphics.drawRect(x, y, r.width, r.height)
 end

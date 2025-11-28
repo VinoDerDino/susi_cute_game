@@ -10,7 +10,6 @@ local PD_HEIGHT <const> = playdate.display.getHeight()
 
 function Level:init(levelPath)
     Level.super.init(self)
-
     self:setZIndex(0)
 
     local jsonTable = getJSONTableFromTiledFile(levelPath)
@@ -19,6 +18,13 @@ function Level:init(levelPath)
         print("ERROR: Level data could not be loaded from " .. levelPath)
         return
     end
+
+    local properties = getMapPropertiesFromTiledJSON(jsonTable)
+    local unlocks = {
+        twineGrowth = properties.twineGrowth or false,
+        cranking = properties.cranking or false,
+    }
+    GameState:setMultiUnlocks(unlocks)
 
     self.objects = importObjectsFromTiledJSON(jsonTable)
     self.triggers = importTriggersFromTiledJSON(jsonTable)
@@ -30,8 +36,6 @@ function Level:init(levelPath)
     self.WorldWidth = self.walls.pixelWidth
     self.WorldHeight = self.walls.pixelHeight
 
-    print("Level dimensions: " .. self.WorldWidth .. "x" .. self.WorldHeight)
-
     self.activeRoomX = 1
     self.activeRoomY = 1
 
@@ -40,18 +44,22 @@ function Level:init(levelPath)
     end
 
     self.sandy = Sandy(getSandyConfig(jsonTable))
-    self.player = Player()
+    self.player = Player(properties.playerSpawnX or 20, properties.playerSpawnY or 20)
 
     self:setupWalls()
     self:setupObjects()
     self:setupSpikes()
     self:setupTriggers()
-    self.player:addSprite()
+    self.player:add()
     if self.sandy then
-        self.sandy:addSprite()
+        self.sandy:add()
     end
-    self:addSprite()
+    self:add()
     self.runStartTime = playdate.getCurrentTimeMilliseconds()
+end
+
+function Level:unlockFeature(key)
+
 end
 
 function Level:close()
@@ -90,13 +98,13 @@ end
 
 function Level:setupObjects()
     for i, obj in ipairs(self.objects) do
-        obj:addSprite()
+        obj:add()
     end
 end
 
 function Level:setupSpikes()
     for i, spike in ipairs(self.spikes) do
-        spike:addSprite()
+        spike:add()
     end
 end
 
@@ -104,7 +112,7 @@ function Level:setupTriggers()
     if not self.triggers then return end
 
     for i, trigger in ipairs(self.triggers) do
-        trigger:addSprite()
+        trigger:add()
     end
 end
 
@@ -135,7 +143,6 @@ function Level:movePlayer()
     self.player:setClimbing(false)
     self.player:setInteracting(false)
     self.player:setOnPlatform(nil)
-    self.player.canWallJump = false
 
     local playerCanRespawn = true
 
@@ -146,13 +153,13 @@ function Level:movePlayer()
             if c.normal.y < 0 then
                 self.player:setOnGround(true)
                 self.player.velocity.y = 0
-                self.player:resetWallJumps()
             elseif c.normal.y > 0 then
                 self.player.velocity.y = 100
-                SoundManager:playSound(SoundManager.kHeadbut)
+                if not self.player.isClimbing then
+                    SoundManager:playSound(SoundManager.kHeadbut)
+                end
             elseif c.normal.x ~= 0 then
                 if c.normal.x < 0 and self.player.facing == "right" or c.normal.x > 0 and self.player.facing == "left" then
-                    self.player.canWallJump = true
                 end
             end
         elseif c.other.isPlatform then
@@ -160,8 +167,8 @@ function Level:movePlayer()
             if c.normal.y < 0 then
                 self.player:setOnGround(true)
                 self.player:setOnPlatform(c.other)
-                self.player.velocity.y = 0
-                self.player:resetWallJumps()
+                self.player.velocity.y = math.min(self.player.velocity.y, 0)
+                self.player.position.x += c.other.delta.x
             elseif c.normal.y > 0 then
                 if not self.player.isClimbing then
                     SoundManager:playSound(SoundManager.kHeadbut)
@@ -169,6 +176,15 @@ function Level:movePlayer()
                 if self.player.velocity.y < 0 and self.player.y > c.other.y then
                     self.player.velocity.y = 100
                 end
+            end
+        elseif c.other:isa(FloatingPlatform) then
+            playerCanRespawn = false
+            if c.normal.y < 0 then
+                self.player:setOnGround(true)
+                self.player.velocity.y = 0
+            elseif c.normal.y > 0 then
+                self.player.velocity.y = 100
+                SoundManager:playSound(SoundManager.kHeadbut)
             end
         elseif c.other:isa(Twine) then
             if c.other.fullGrown then
@@ -183,6 +199,8 @@ function Level:movePlayer()
             else
                 self.player:respawn()
             end
+        elseif c.other:isa(SockProp) then
+            c.other:hit()
         end
     end
 
@@ -225,6 +243,10 @@ end
 function Level:setZIndexForObjects(zIndex)
     for _, obj in ipairs(self.objects) do
         obj:setZIndex(zIndex)
+    end
+
+    for _, spike in ipairs(self.spikes) do
+        spike:setZIndex(zIndex)
     end
 end
 
@@ -280,4 +302,16 @@ function Level:drawTimer()
         seconds % 60,
         ms
     ), PD_WIDTH - 65 + (self.activeRoomX - 1) * PD_WIDTH, 2 + (self.activeRoomY - 1) * PD_HEIGHT)
+end
+
+function Level:debugDraw()
+    for _, obj in ipairs(self.objects) do
+        if obj.debugDraw then
+            obj:debugDraw()
+        end
+    end
+
+    if self.player.debugDraw then
+        self.player:debugDraw()
+    end
 end

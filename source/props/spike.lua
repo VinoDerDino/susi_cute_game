@@ -7,7 +7,7 @@ local gfx <const> = playdate.graphics
 function Spike:init(x, y, spawnX, spawnY, rotation)
     Spike.super.init(self)
 
-    self.images = playdate.graphics.imagetable.new("assets/images/spritesheets/rhababer")
+    self.images = playdate.graphics.imagetable.new("assets/images/props/rhababer")
     self:setImage(self.images:getImage(1))
 
     self:setCenter(0.5, 1)

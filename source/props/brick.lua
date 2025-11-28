@@ -2,10 +2,10 @@ class("Brick").extends(playdate.graphics.sprite)
 
 local DIMENSION <const> = 20
 
-function Brick:init(x, y)
+function Brick:init(x, y, disappearsOn)
     local trueX, trueY = x + DIMENSION / 2, y + DIMENSION
 
-    self:setImage(playdate.graphics.image.new("assets/images/spritesheets/brick"))
+    self:setImage(playdate.graphics.image.new("assets/images/props/brick"))
 
     self:setCollideRect(0, 0, DIMENSION, DIMENSION)
     self:setCenter(0.5, 1)
@@ -14,14 +14,15 @@ function Brick:init(x, y)
 
     self.isWall = true
 
-    EventSystem:addListener(self)
+    self.disappearsOn = disappearsOn or nil
 
-    print("Brick placed at:", x, y)
+    EventSystem:addListener(self)
 end
 
 function Brick:catchEvent(eventName, data)
-    if eventName == "rescueSandy" then
+    if not self.disappearsOn then return end
+
+    if eventName == self.disappearsOn then
         self:remove()
-        print("Brick removed after rescuing Sandy")
     end
 end
