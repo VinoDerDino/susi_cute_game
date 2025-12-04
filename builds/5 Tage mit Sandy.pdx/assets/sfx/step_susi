@@ -18,9 +18,9 @@
 		"start_phase":0,
 		"type":2
 	},
-	"attack":0.012850550934672,
+	"attack":0.01285055000335,
 	"curvature":0.78911405801773,
-	"decay":0.09689112752676,
+	"decay":0.079509891569614,
 	"duration":0,
 	"freq_mod": {
 		"arpeggio": [
@@ -32,7 +32,7 @@
 		],
 		"arpeggio_enabled":false,
 		"center":0.4964784681797,
-		"delay_fade":0.0040697939693928,
+		"delay_fade":0.0040697930380702,
 		"delay_start":0,
 		"depth":0.99826848506927,
 		"enabled":true,
@@ -43,7 +43,7 @@
 	},
 	"lock_note_to_integer":false,
 	"name":"step_susi",
-	"note":57.752655029297,
+	"note":49.179908752441,
 	"parameter1_mod": {
 		"arpeggio": [
 			0,
@@ -82,8 +82,8 @@
 		"start_phase":0,
 		"type":1
 	},
-	"release":0.36863297224045,
-	"sustain":0.16732549667358,
-	"volume":0.09731662869453,
-	"wave":5
+	"release":0.25280305743217,
+	"sustain":0.089270122349262,
+	"volume":0.31400361657143,
+	"wave":4
 }

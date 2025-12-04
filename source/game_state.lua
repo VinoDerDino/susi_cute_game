@@ -4,6 +4,7 @@ import 'util/sock'
 import 'screens/menuScreen'
 import 'screens/sockScreen'
 import 'screens/levelPickerScreen'
+import 'screens/helpScreen'
 
 local gfx <const> = playdate.graphics
 
@@ -52,10 +53,13 @@ GameState.data = {
 }
 
 GameState.game = {
+    nextLevel = nil,
     currentLevel = nil,
     sockScreen = nil,
     menuScreen = nil,
     levelMenuScreen = nil,
+    helpScreen = nil,
+    showCrank = false
 }
 
 GameState.states = {
@@ -63,11 +67,17 @@ GameState.states = {
     SOCKS = 2,
     LEVEL_MENU = 3,
     LEVEL = 4,
+    HELP = 5
 }
 
 GameState.socks = {}
 
 GameState.currentState = nil
+GameState.currentOutro = false
+
+GameState.consts = {
+    intro_speed = 8,
+}
 
 function GameState:load()
     local ok, t = pcall(playdate.datastore.read, self.filename)
@@ -118,7 +128,7 @@ function GameState:setCurrentLevel(levelId)
     }
 
     if levelPaths[levelId] then
-        self.game.currentLevel = Level(levelPaths[levelId])
+        self.game.nextLevel = Level(levelPaths[levelId])
     else
         self.game.currentLevel = nil
     end
@@ -134,15 +144,19 @@ function GameState:setState(state)
         end
     elseif self.currentState == self.states.MENU then
         if self.game.menuScreen then
-            self.game.menuScreen:hide()
+            self.game.menuScreen:startOutro()
         end
     elseif self.currentState == self.states.LEVEL_MENU then
         if self.game.levelMenuScreen then
-            self.game.levelMenuScreen:hide()
+            self.game.levelMenuScreen:startOutro()
         end
     elseif self.currentState == self.states.SOCKS then
         if self.game.sockScreen then
-            self.game.sockScreen:hide()
+            self.game.sockScreen:startOutro()
+        end
+    elseif self.currentState == self.states.HELP then
+        if self.game.helpScreen then
+            self.game.helpScreen:startOutro()
         end
     end
 
@@ -150,15 +164,19 @@ function GameState:setState(state)
 
     if self.currentState == self.states.MENU then
         if self.game.menuScreen then
-            self.game.menuScreen:show()
+            self.game.menuScreen:startIntro()
         end
     elseif self.currentState == self.states.LEVEL_MENU then
         if self.game.levelMenuScreen then
-            self.game.levelMenuScreen:show()
+            self.game.levelMenuScreen:startIntro()
         end
     elseif self.currentState == self.states.SOCKS then
         if self.game.sockScreen then
-            self.game.sockScreen:show()
+            self.game.sockScreen:startIntro()
+        end
+    elseif self.currentState == self.states.HELP then
+        if self.game.helpScreen then
+            self.game.helpScreen:startIntro()
         end
     end
 end
@@ -171,6 +189,11 @@ function GameState:draw()
     local state = self.currentState
 
     if state == nil then return end
+
+    if state == self.states.LEVEL and self.game.nextLevel and not self.currentOutro then
+        self.game.currentLevel = self.game.nextLevel
+        self.game.nextLevel = nil
+    end
 
     gfx.clear(gfx.kColorBlack)
     local screenImage = gfx.image.new(400, 240)
@@ -187,12 +210,18 @@ function GameState:draw()
         elseif state == self.states.MENU and self.game.menuScreen then
             gfx.sprite.update()
             self.game.menuScreen:draw()
+            if self.game.helpScreen and self.game.helpScreen.outro == true then
+                self.game.helpScreen:draw()
+            end
         elseif state == self.states.SOCKS and self.game.sockScreen then
             gfx.sprite.update()
-            self.game.sockScreen:draw()
+            self.game.sockScreen:drawScreen()
         elseif state == self.states.LEVEL_MENU and self.game.levelMenuScreen then
             gfx.sprite.update()
             self.game.levelMenuScreen:draw()
+        elseif state == self.states.HELP and self.game.helpScreen then
+            gfx.sprite.update()
+            self.game.helpScreen:draw()
         else
             gfx.popContext()
             return
@@ -216,6 +245,7 @@ function GameState:init()
     self.game.menuScreen = MenuScreen()
     self.game.sockScreen = SockScreen()
     self.game.levelMenuScreen = LevelPickerScreen()
+    self.game.helpScreen = HelpScreen()
     self.socks = {}
     for i = 1, 25 do
         self.socks[i] = Sock(i)
@@ -235,5 +265,7 @@ function GameState:catchEvent(eventName, eventData)
         self:setState(self.states.LEVEL_MENU)
     end
 end
+
+EventSystem:addListener(GameState)
 
 _G.GameState = GameState

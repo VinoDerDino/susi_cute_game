@@ -58,10 +58,6 @@ function Level:init(levelPath)
     self.runStartTime = playdate.getCurrentTimeMilliseconds()
 end
 
-function Level:unlockFeature(key)
-
-end
-
 function Level:close()
     self.player:remove()
     if self.sandy then

@@ -213,11 +213,6 @@
                  "name":"Door_1",
                  "properties":[
                         {
-                         "name":"direction",
-                         "type":"string",
-                         "value":"down"
-                        }, 
-                        {
                          "name":"emitEvent",
                          "type":"string",
                          "value":"firstDoorOpened"
@@ -234,11 +229,6 @@
                  "id":40,
                  "name":"Door_2",
                  "properties":[
-                        {
-                         "name":"direction",
-                         "type":"string",
-                         "value":"down"
-                        }, 
                         {
                          "name":"emitEvent",
                          "type":"string",
@@ -4425,7 +4415,7 @@
         {
          "name":"playerSpawnY",
          "type":"int",
-         "value":220
+         "value":210
         }, 
         {
          "name":"twineGrowth",

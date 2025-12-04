@@ -11,6 +11,8 @@ local sasser_slab_family <const> = gfx.font.newFamily({
 
 local SOCK_NOT_FOUND <const> = 26
 
+local INTRO_OFFSET <const> = 240
+
 local positions = {
     {x = 50,  y = 23},
     {x = 120, y = 23},
@@ -54,7 +56,7 @@ function Sock:init(id)
 
     local pos = positions[id]
 
-    self:moveTo(pos.x, pos.y)
+    self:moveTo(pos.x, pos.y + INTRO_OFFSET)
 
     self:setCenter(0, 0)
     self:setCollideRect(0, 0, 20, 20)
@@ -64,7 +66,10 @@ function Sock:init(id)
 
     self.dialogueBox = nil
 
-
+    self.menuPos = {
+        x = pos.x,
+        y = pos.y + INTRO_OFFSET
+    }
     self.floatOffset = 0
 
     self:setupPopupText()
@@ -118,7 +123,7 @@ function Sock:drawAt(x, y)
 end
 
 function Sock:reset()
-    self:moveTo(positions[self.sock_id].x, positions[self.sock_id].y)
+    self:moveTo(positions[self.sock_id].x, positions[self.sock_id].y + 240)
     if self.owned then
         self:setImage(self.images:getImage(self.sock_id))
     else

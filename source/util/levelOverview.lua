@@ -15,20 +15,24 @@ function LevelOverview:init(config)
 
     self.thumbnail = gfx.image.new("assets/images/levelThumbnails/level_" .. self.levelIndex) or LEVEL_LOCKED_IMG
 
-    self.x = (self.levelIndex - self.currentViewIndex) * 400
-    self.y = 0
-    self.newX = self.x
+    self._x = (self.levelIndex - self.currentViewIndex) * 400
+    self._y = 240
+    self.newX = self._x
+
+    self:moveTo(self._x, self._y)
 
     self.enter = false
+    self:setSize(400, 240)
+    self:setCenter(0, 0)
 
     self:setZIndex(2000)
 end
 
 function LevelOverview:reset()
     self.currentViewIndex = 1
-    self.x = (self.levelIndex - self.currentViewIndex) * 400
-    self.newX = self.x
-    self.y = 0
+    self._x = (self.levelIndex - self.currentViewIndex) * 400
+    self.newX = self._x
+    self._y = 240
 
     self.enabled = GameState.data.level["level" .. self.levelIndex]
 end
@@ -36,21 +40,21 @@ end
 function LevelOverview:draw()
     gfx.setColor(gfx.kColorBlack)
     gfx.getSystemFont(gfx.font.kVariantBold):drawText(
-        self.name, self.x + 100, self.y + 20, 200, 39, 0, gfx.kWrapClip, gfx.kAlignCenter)
+        self.name, 100, 20, 200, 39, 0, gfx.kWrapClip, gfx.kAlignCenter)
 
-    gfx.drawRect(self.x + 79, self.y + 49, 242, 146)
+    gfx.drawRect(79, 49, 242, 146)
 
     if self.enabled then
-        self.thumbnail:draw(self.x + 80, self.y + 50)
+        self.thumbnail:draw(80, 50)
     else
-        LEVEL_LOCKED_IMG:draw(self.x + 80, self.y + 50)
+        LEVEL_LOCKED_IMG:draw(80, 50)
     end
 
     for _, sockIndex in ipairs(self.sockIndexes) do
         local sock = GameState.socks[sockIndex]
         if sock then
             local localSockIndex = sockIndex - (self.levelIndex - 1) * 5
-            sock:drawAt(self.x + 105 + (localSockIndex - 1) * 43, self.y + 210)
+            sock:drawAt(105 + (localSockIndex - 1) * 43, 210)
         else
             print("Sock index " .. sockIndex .. " not found")
         end
@@ -60,16 +64,19 @@ end
 function LevelOverview:setNewPos(pos)
     self.currentViewIndex += pos
     self.newX = (self.levelIndex - self.currentViewIndex) * 400
+ end
+
+function LevelOverview:setNewPosY(yOffset)
+    self._y = yOffset
 end
 
 function LevelOverview:update()
-    if self.x == self.newX then return end
-
     local step = 10
 
-    if self.x < self.newX then
-        self.x = math.min(self.x + step, self.newX)
+    if self._x < self.newX then
+        self._x = math.min(self._x + step, self.newX)
     else
-        self.x = math.max(self.x - step, self.newX)
+        self._x = math.max(self._x - step, self.newX)
     end
+    self:moveTo(self._x, self._y)
 end

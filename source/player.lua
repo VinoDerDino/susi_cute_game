@@ -32,6 +32,8 @@ function Player:init(x, y)
     local spawnX = x or 50
     local spawnY = y or 50
 
+    print("Setting respawn point to x:" .. tostring(spawnX) .. " y:" .. tostring(spawnY))
+
     self.respawnPoint = Point.new(spawnX, spawnY)
 
     self.isClimbing = false
@@ -52,8 +54,7 @@ function Player:init(x, y)
 end
 
 function Player:reset(x, y)
-    -- self.position = Point.new(x or 50, y or 50) -- spawn level 1
-    self.position = Point.new(x or 970, y or 600) -- spawn level 2
+    self.position = Point.new(x, y)
     self.velocity = vector2D.new(0, 0)
     self:moveTo(self.position.x, self.position.y)
 
@@ -129,15 +130,8 @@ function Player:continueJump()
     self.velocity.y -= self.jumpTimer.value
 end
 
-
-
 function Player:resetDoubleJump()
     self.doubleJumpAvailable = true
-end
-
-function Player:pound()
-    self.isPounding = true
-    self.velocity.y = MAX_FALL_VELOCITY / 2
 end
 
 function Player:setClimbing(flag)
@@ -263,17 +257,6 @@ function Player:normalMovement()
         end
     elseif playdate.buttonIsPressed(playdate.kButtonA) and self.movementEnabled then
         self:continueJump()
-    end
-
-    if playdate.buttonJustPressed(playdate.kButtonB) and self.movementEnabled  then
-        self:pound()
-    end
-
-    if self.isPounding then
-        self.velocity.x = 0
-        if self.onGround then
-            self.isPounding = false
-        end
     end
 
     self.velocity.y = self.velocity.y + GRAVITY_CONSTANT * dt

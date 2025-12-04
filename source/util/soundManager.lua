@@ -11,6 +11,10 @@ SoundManager.kJump = 'jump'
 SoundManager.kLand = 'land'
 SoundManager.kStepSusi = 'step_susi'
 SoundManager.kStepSandy = 'step_sandy'
+SoundManager.kMenuMove = 'menu_move'
+SoundManager.kButtonA = 'button_a'
+SoundManager.kButtonB = 'button_b'
+SoundManager.kSwoosh = 'swoosh'
 
 SoundManager.sounds = {
     [SoundManager.kClick] = pdfxr.synth.new("assets/sfx/click"),
@@ -22,6 +26,10 @@ SoundManager.sounds = {
     [SoundManager.kLand] = pdfxr.synth.new("assets/sfx/land"),
     [SoundManager.kStepSusi] = pdfxr.synth.new("assets/sfx/step_susi"),
     [SoundManager.kStepSandy] = pdfxr.synth.new("assets/sfx/step_sandy"),
+    [SoundManager.kMenuMove] = pdfxr.synth.new("assets/sfx/menu_move"),
+    [SoundManager.kButtonA] = pdfxr.synth.new("assets/sfx/button_a"),
+    [SoundManager.kButtonB] = pdfxr.synth.new("assets/sfx/button_b"),
+    [SoundManager.kSwoosh] = pdfxr.synth.new("assets/sfx/swoosh"),
 }
 
 function SoundManager:playSound(name)

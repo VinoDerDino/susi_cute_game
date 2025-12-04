@@ -3,12 +3,13 @@ import 'CoreLibs/graphics'
 import 'CoreLibs/sprites'
 import 'CoreLibs/frameTimer'
 import 'CoreLibs/nineslice'
+import 'CoreLibs/ui'
 
 import 'dialogue/pdDialogue'
 
 import 'util/soundManager'
-import 'game_state'
 import 'eventSystem'
+import 'game_state'
 
 local gfx <const> = playdate.graphics
 
@@ -30,14 +31,18 @@ end
 setup()
 
 function playdate.update()
+    GameState.game.showCrank = false
     GameState:draw()
+    if GameState.game.showCrank then
+        playdate.ui.crankIndicator:draw()
+    end
     gfx.setColor(gfx.kColorWhite)
     playdate.drawFPS(0,0)
     gfx.setColor(gfx.kColorBlack)
-end
 
-function playdate.debugDraw()
-    GameState:debugDraw()
+    local spriteCount = gfx.sprite.getAllSprites()
+    print("Sprite count: "..#spriteCount)
+    print("Lua Speicher: " .. collectgarbage("count") .. " KB")
 end
 
 function playdate.gameWillTerminate()

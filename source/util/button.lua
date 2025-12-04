@@ -1,14 +1,19 @@
 class("Button").extends(playdate.graphics.sprite)
 
-function Button:init(x, y, width, height, label, callback)
+local Point <const> = playdate.geometry.point
+
+function Button:init(x, y, width, height, label, nb, callback)
     Button.super.init(self)
 
     self.innerWidth = width
     self.innerHeight = height
 
-    self:setSize(width + 20, height + 20)
+    self.startPos = Point.new(x, y)
+    self.position = self.startPos:copy()
+
+    self:setSize(width + 100, height + 20)
     self:setCenter(0.5, 0.5)
-    self:moveTo(x, y)
+    self:moveTo(self.position.x, self.position.y)
     self:setZIndex(1000)
 
     self.label = label or ""
@@ -20,6 +25,15 @@ function Button:init(x, y, width, height, label, callback)
     self.cursorDt = 0
     self.animateCursor = false
     self.cursorBig = true
+
+    self.pawtable = playdate.graphics.imagetable.new("assets/images/ui/paw")
+    self.background = playdate.graphics.image.new("assets/images/ui/button")
+end
+
+function Button:reset()
+    self.position = self.startPos:copy()
+    self:moveTo(self.position.x, self.position.y)
+    self.isPressed = false
 end
 
 function Button:setSelected(flag)
@@ -32,35 +46,29 @@ function Button:setSelected(flag)
 end
 
 function Button:drawCursor()
-    if self.isPressed then
-        return
-    end
-    playdate.graphics.setLineWidth(4)
+    playdate.graphics.setImageDrawMode(playdate.graphics.kDrawModeCopy)
     playdate.graphics.setColor(playdate.graphics.kColorBlack)
-    if not self.animateCursor or not self.cursorBig then
-        playdate.graphics.drawRect(8, 8, self.width - 16, self.height - 16)
-    else
-        playdate.graphics.drawRect(6, 6, self.width - 12, self.height - 12)
-    end
-    playdate.graphics.setLineWidth(1)
+    local img = self.pawtable:getImage(self.isPressed and 2 or 1)
+    img:draw(0, 10)
 end
 
 function Button:draw()
     local oldDrawMode = playdate.graphics.getImageDrawMode()
-    playdate.graphics.setColor(playdate.graphics.kColorBlack)
-    playdate.graphics.fillRect(10, 10, self.innerWidth, self.innerHeight)
+    self.background:draw(50, 10)
 
     playdate.graphics.setImageDrawMode(playdate.graphics.kDrawModeFillWhite)
     playdate.graphics.setColor(playdate.graphics.kColorWhite)
-    playdate.graphics.drawRect(10, 10, self.innerWidth, self.innerHeight)
+
 
     local textWidth = self.font:getTextWidth(self.label)
     local textHeight = self.font:getHeight()
-    local textX = 10 + (self.innerWidth - textWidth) / 2
+    local textX = 50 + (self.innerWidth - textWidth) / 2
     local textY = 10 + (self.innerHeight - textHeight) / 2
     playdate.graphics.drawText(self.label, textX, textY)
 
-    self:drawCursor()
+    if self.selected then
+        self:drawCursor()
+    end
     playdate.graphics.setImageDrawMode(oldDrawMode)
 end
 
@@ -81,6 +89,7 @@ function Button:update()
             self.animateCursor = false
             self.cursorDt = 0
             self.cursorBig = true
+            SoundManager:playSound(SoundManager.kButtonA)
         else
             self.animateCursor = true
             self.cursorDt += 1

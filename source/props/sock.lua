@@ -101,7 +101,7 @@ function SockProp:update()
     if self.animate then
         self:animateFound()
         if not self.infoShown then
-            pdDialogue.say("Mach Briefumschlag Nr. " .. tostring(self.sock.sock_id) .. " auf! Schau im Menue nach!", self.infoDialogueConfig)
+            pdDialogue.say("Du hast eine Socke eingesammelt! Schau im Menue unter 'Deine Socken' nach!", self.infoDialogueConfig)
             self.infoShown = true
         end
         return
