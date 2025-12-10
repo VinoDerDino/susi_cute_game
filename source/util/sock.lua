@@ -72,6 +72,11 @@ function Sock:init(id)
     }
     self.floatOffset = 0
 
+    self.isNew = false
+    self.isNewIndicator = gfx.sprite.new(gfx.image.new("assets/images/socks/new_indicator"))
+    self.isNewIndicator:moveTo(self.x, self.y - 5)
+    self.isNewIndicator:setCenter(0, 0)
+
     self:setupPopupText()
 end
 
@@ -108,8 +113,10 @@ function Sock:setupPopupText()
 end
 
 function Sock:setOwned()
+    if self.owned then return end
     self:setImage(self.images:getImage(self.sock_id))
     self.owned = true
+    self.isNew = true
 end
 
 function Sock:showPopupText()
@@ -132,4 +139,10 @@ function Sock:reset()
 end
 
 function Sock:update()
+    self.isNewIndicator:moveTo(self.x, self.y - 5)
+    if self.isNew then
+        self.isNewIndicator:add()
+    else
+        self.isNewIndicator:remove()
+    end
 end

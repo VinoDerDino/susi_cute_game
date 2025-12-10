@@ -8,6 +8,9 @@ import 'props/spike'
 import 'props/brick'
 import 'props/floatingPlatform'
 import 'props/sock'
+import 'props/spring'
+import 'props/water'
+import 'props/lever'
 
 function getJSONTableFromTiledFile(path)
 
@@ -152,6 +155,7 @@ end
 local objectCreators = {
     Door = function(objData, objectsById, objectTable, cache)
         local emitEvent = getProperty(objData, "emitEvent") or nil
+        print("Created doot with emitEvent: " .. tostring(emitEvent))
         local door = Door(objData.x , objData.y, objData.height, emitEvent)
         return door
     end,
@@ -243,6 +247,26 @@ local objectCreators = {
         local sockProp = SockProp(sockId, objData.x, objData.y)
         table.insert(objectTable, sockProp)
         return sockProp
+    end,
+
+    Spring = function(objData, objectsById, objectTable, cache)
+        local strength = getProperty(objData, "strength") or 400
+        local spring = Spring(objData.x, objData.y, strength)
+        table.insert(objectTable, spring)
+        return spring
+    end,
+
+    Water = function(objData, objectsById, objectTable, cache)
+        local water = Water(objData.x, objData.y, objData.width, objData.height)
+        table.insert(objectTable, water)
+        return water
+    end,
+
+    Lever = function(objData, objectsById, objectTable, cache)
+        local emitEvent = getProperty(objData, "emitEvent") or nil
+        local lever = Lever(objData.x, objData.y, emitEvent)
+        table.insert(objectTable, lever)
+        return lever
     end,
 }
 

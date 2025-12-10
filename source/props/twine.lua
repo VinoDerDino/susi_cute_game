@@ -29,6 +29,10 @@ function Twine:init(x, y, endY)
     self.idleImageIndex = 1
 end
 
+function Twine:destroy()
+    gfx.sprite.removeSprites(self.segments)
+end
+
 function Twine:updateCollideRect()
     local totalHeight = self.startHeight - self.currentHeight + 20
     self:setCollideRect(0, 0, 20, totalHeight)

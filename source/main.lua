@@ -39,10 +39,6 @@ function playdate.update()
     gfx.setColor(gfx.kColorWhite)
     playdate.drawFPS(0,0)
     gfx.setColor(gfx.kColorBlack)
-
-    local spriteCount = gfx.sprite.getAllSprites()
-    print("Sprite count: "..#spriteCount)
-    print("Lua Speicher: " .. collectgarbage("count") .. " KB")
 end
 
 function playdate.gameWillTerminate()

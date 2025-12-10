@@ -2,17 +2,28 @@ class("HelpScreen").extends(playdate.graphics.sprite)
 
 local INTRO_OFFSET <const> = 240
 
+local gfx <const> = playdate.graphics
+
 function HelpScreen:init()
     HelpScreen.super.init(self)
 
     self._y = -INTRO_OFFSET
 
-    self.text = {
+    self.textImages = {}
+    self.intro = false
+    self.outro = false
+
+    self.selectedTextIndex = 1
+    self:setUpText()
+end
+
+function HelpScreen:setUpText()
+    local text = {
 [[
 Wie spielt man das Spiel?
 
 Du benutzt einfach die Pfeiltasten, um dich nach links und rechts zu bewegen. Zum Springen nutzt du die A-Taste.
-
+Die B-Taste wird nur von Hebeln benutzt, aber die kommen erst in den letzteren Leveln vor.
 Im Spiel selber findest du an verschiedenen Stellen *Sandy*. Mit der Pfeiltaste nach unten kannst du mit ihr interargieren.
 ]],
 [[
@@ -26,15 +37,40 @@ Jede eingesammelte Socke erlaubt es dir, im echten Leben ein kleines Geschenk vo
 
 Hab ganz Viel Spass mit dem Spiel!
 
-Wenn du mal Hilfe oder Fragen hast, kannst du mich jederzeit fragen :)
+Wenn du mal Hilfe brauchst oder Fragen hast, kannst du mich jederzeit fragen :)
 
 Dein Winnie <3
 ]],
     }
-    self.intro = false
-    self.outro = false
 
-    self.selectedTextIndex = 1
+    for i, t in ipairs(text) do
+        local img = gfx.image.new(400, 240)
+        gfx.pushContext(img)
+
+            gfx.setColor(gfx.kColorBlack)
+            gfx.drawTextInRect(t, 20, 10, 360, 200)
+
+            local leftTextAddon = (i > 1) and "<-" or ""
+            gfx.drawTextInRect(leftTextAddon,
+                20, 215, 360, 20,
+                nil, nil, kTextAlignment.left
+            )
+
+            gfx.drawTextInRect(tostring(i) .. "/" .. #text,
+                20, 215, 360, 20,
+                nil, nil, kTextAlignment.center
+            )
+
+            local rightTextAddon = (i < #text) and "->" or ""
+            gfx.drawTextInRect(rightTextAddon,
+                20, 215, 360, 20,
+                nil, nil, kTextAlignment.right
+            )
+
+        gfx.popContext()
+
+        self.textImages[i] = img
+    end
 end
 
 function HelpScreen:show()
@@ -92,8 +128,8 @@ function HelpScreen:update()
         SoundManager:playSound(SoundManager.kMenuMove)
     elseif playdate.buttonJustPressed(playdate.kButtonRight) then
         self.selectedTextIndex += 1
-        if self.selectedTextIndex > #self.text then
-            self.selectedTextIndex = #self.text
+        if self.selectedTextIndex > #self.textImages then
+            self.selectedTextIndex = #self.textImages
         end
         SoundManager:playSound(SoundManager.kMenuMove)
     elseif playdate.buttonJustPressed(playdate.kButtonB) then
@@ -103,11 +139,5 @@ function HelpScreen:update()
 end
 
 function HelpScreen:draw()
-    playdate.graphics.setColor(playdate.graphics.kColorBlack)
-    playdate.graphics.drawTextInRect(self.text[self.selectedTextIndex], 20, self._y + 10, 360, 200)
-    local leftTextAddon = self.selectedTextIndex > 1 and "<-" or ""
-    local rightTextAddon = self.selectedTextIndex < #self.text and "->" or ""
-    playdate.graphics.drawTextInRect(leftTextAddon, 20, self._y + 215, 360, 20, nil, nil, kTextAlignment.left)
-    playdate.graphics.drawTextInRect(tostring(self.selectedTextIndex) .. "/" .. #self.text, 20, self._y + 215, 360, 20, nil, nil, kTextAlignment.center)
-    playdate.graphics.drawTextInRect(rightTextAddon, 20, self._y + 215, 360, 20, nil, nil, kTextAlignment.right)
+    self.textImages[self.selectedTextIndex]:draw(0, self._y)
 end

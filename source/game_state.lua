@@ -21,7 +21,10 @@ GameState.data = {
     },
     level = {
         level1 = true,
-        level2 = false,
+        level2 = true,
+        level3 = true,
+        level4 = false,
+        level5 = true,
     },
     socks = {
         [1] = false,
@@ -121,10 +124,15 @@ function GameState:getSetting(key, default)
     return default
 end
 
+local END_LEVEL_ID <const> = 5
+
 function GameState:setCurrentLevel(levelId)
     local levelPaths = {
         "assets/maps/level_1.json",
         "assets/maps/level_2.json",
+        "assets/maps/level_3.json",
+        "assets/maps/level_4.json",
+        "assets/maps/level_5.json",
     }
 
     if levelPaths[levelId] then
@@ -140,6 +148,7 @@ function GameState:setState(state)
     if self.currentState == self.states.LEVEL then
         if self.game.currentLevel then
             self.game.currentLevel:close()
+            gfx.sprite.removeSprite(self.game.currentLevel)
             self.game.currentLevel = nil
         end
     elseif self.currentState == self.states.MENU then
@@ -193,6 +202,8 @@ function GameState:draw()
     if state == self.states.LEVEL and self.game.nextLevel and not self.currentOutro then
         self.game.currentLevel = self.game.nextLevel
         self.game.nextLevel = nil
+        self.game.currentLevel:open()
+        print("LEVEL SET")
     end
 
     gfx.clear(gfx.kColorBlack)
@@ -207,6 +218,9 @@ function GameState:draw()
             gfx.sprite.update()
             pdDialogue.update()
             playdate.frameTimer.updateTimers()
+        elseif state == self.states.LEVEL and self.game.nextLevel then
+            gfx.sprite.update()
+            pdDialogue.update()
         elseif state == self.states.MENU and self.game.menuScreen then
             gfx.sprite.update()
             self.game.menuScreen:draw()
@@ -260,6 +274,9 @@ function GameState:catchEvent(eventName, eventData)
         self:setState(self.states.LEVEL_MENU)
     elseif eventName == "enableThirdLevel" then
         self.data.level.level3 = true
+        self:setState(self.states.LEVEL_MENU)
+    elseif eventName == "enableFourthLevel" then
+        self.data.level.level4 = true
         self:setState(self.states.LEVEL_MENU)
     elseif eventName == "endLevel" then
         self:setState(self.states.LEVEL_MENU)

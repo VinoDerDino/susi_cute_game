@@ -31,6 +31,7 @@ function Level:init(levelPath)
     self.spikes = importSpikesFromTiledJSON(jsonTable)
 
     self.walls = self.layers["walls"]
+    self.wallSprites = {}
     self.deco = self.layers["deco"] or {}
 
     self.WorldWidth = self.walls.pixelWidth
@@ -45,7 +46,9 @@ function Level:init(levelPath)
 
     self.sandy = Sandy(getSandyConfig(jsonTable))
     self.player = Player(properties.playerSpawnX or 20, properties.playerSpawnY or 20)
+end
 
+function Level:open()
     self:setupWalls()
     self:setupObjects()
     self:setupSpikes()
@@ -59,35 +62,74 @@ function Level:init(levelPath)
 end
 
 function Level:close()
-    self.player:remove()
+    if self.player then
+        gfx.sprite.removeSprite(self.player)
+        self.player = nil
+    end
+
     if self.sandy then
-        self.sandy:remove()
+        self.sandy:destroy()
+        gfx.sprite.removeSprite(self.sandy)
+        self.sandy = nil
     end
 
-    for i, trigger in ipairs(self.triggers) do
-        trigger:remove()
+    if self.triggers then
+        for i, trigger in ipairs(self.triggers) do
+            if trigger and trigger.remove then
+                gfx.sprite.removeSprite(trigger)
+            end
+        end
+        self.triggers = nil
     end
 
-    for i, obj in ipairs(self.objects) do
-        obj:remove()
+    if self.objects then
+        for i, obj in ipairs(self.objects) do
+            if obj and obj.remove then
+                if obj.destory then
+                    obj:destroy()
+                end
+                gfx.sprite.removeSprite(obj)
+            end
+        end
+        self.objects = nil
     end
 
-    for i, wall in ipairs(self.walls) do
-        wall:remove()
+    if self.walls and self.walls.tilemap then
+        local wallSprites = self.walls.tilemap.wallSprites
+        if wallSprites then
+            for i = 1, #wallSprites do
+                if wallSprites[i] and wallSprites[i].remove then
+                    gfx.sprite.removeSprite(wallSprites[i])
+                end
+            end
+        end
+    end
+    self.walls = nil
+
+    if self.wallSprites then
+        gfx.sprite.removeSprites(self.wallSprites)
+        self.wallSprites = nil
     end
 
-    for i, spike in ipairs(self.spikes) do
-        spike:remove()
+    if self.spikes then
+        for i, spike in ipairs(self.spikes) do
+            if spike and spike.remove then
+                spike:remove()
+            end
+        end
+        self.spikes = nil
     end
+
+    self.deco = nil
 
     self:remove()
 end
 
 function Level:setupWalls()
     local tilemap = self.walls.tilemap
-	local walls = gfx.sprite.addWallSprites(tilemap, {})
-	for i = 1, #walls do
-		local w = walls[i]
+	self.wallSprites = gfx.sprite.addWallSprites(tilemap, {})
+	for i = 1, #self.wallSprites do
+		local w = self.wallSprites[i]
 		w.isWall = true
 	end
 end
@@ -154,9 +196,6 @@ function Level:movePlayer()
                 if not self.player.isClimbing then
                     SoundManager:playSound(SoundManager.kHeadbut)
                 end
-            elseif c.normal.x ~= 0 then
-                if c.normal.x < 0 and self.player.facing == "right" or c.normal.x > 0 and self.player.facing == "left" then
-                end
             end
         elseif c.other.isPlatform then
             playerCanRespawn = false
@@ -178,6 +217,15 @@ function Level:movePlayer()
             if c.normal.y < 0 then
                 self.player:setOnGround(true)
                 self.player.velocity.y = 0
+            elseif c.normal.y > 0 then
+                self.player.velocity.y = 100
+                SoundManager:playSound(SoundManager.kHeadbut)
+            end
+        elseif c.other:isa(Spring) then
+            playerCanRespawn = false
+            if c.normal.y < 0 then
+                self.player.velocity.y = -c.other.strength
+                SoundManager:playSound(SoundManager.kSpring)
             elseif c.normal.y > 0 then
                 self.player.velocity.y = 100
                 SoundManager:playSound(SoundManager.kHeadbut)
@@ -298,16 +346,4 @@ function Level:drawTimer()
         seconds % 60,
         ms
     ), PD_WIDTH - 65 + (self.activeRoomX - 1) * PD_WIDTH, 2 + (self.activeRoomY - 1) * PD_HEIGHT)
-end
-
-function Level:debugDraw()
-    for _, obj in ipairs(self.objects) do
-        if obj.debugDraw then
-            obj:debugDraw()
-        end
-    end
-
-    if self.player.debugDraw then
-        self.player:debugDraw()
-    end
 end

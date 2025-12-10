@@ -15,6 +15,8 @@ SoundManager.kMenuMove = 'menu_move'
 SoundManager.kButtonA = 'button_a'
 SoundManager.kButtonB = 'button_b'
 SoundManager.kSwoosh = 'swoosh'
+SoundManager.kSpring = 'spring'
+SoundManager.kCollect = 'collect'
 
 SoundManager.sounds = {
     [SoundManager.kClick] = pdfxr.synth.new("assets/sfx/click"),
@@ -30,6 +32,8 @@ SoundManager.sounds = {
     [SoundManager.kButtonA] = pdfxr.synth.new("assets/sfx/button_a"),
     [SoundManager.kButtonB] = pdfxr.synth.new("assets/sfx/button_b"),
     [SoundManager.kSwoosh] = pdfxr.synth.new("assets/sfx/swoosh"),
+    [SoundManager.kSpring] = pdfxr.synth.new("assets/sfx/spring"),
+    [SoundManager.kCollect] = pdfxr.synth.new("assets/sfx/collect"),
 }
 
 function SoundManager:playSound(name)

@@ -21,8 +21,9 @@ local SANDY_FRAMES <const> = {
 
 function Sandy:init(config)
     if not config then return nil end
-    Sandy.super.init(self)
-
+    Sandy.super.init(self, "sandy_portrait")
+    
+    
     self.images = playdate.graphics.imagetable.new("assets/images/npcs/sandy")
     self:setImage(self.images:getImage(SANDY_FRAMES.sleep))
     self:setZIndex(900)
@@ -256,7 +257,7 @@ function Sandy:update()
 end
 
 function Sandy:catchEvent(eventName, data)
-    if eventName == "firstDoorOpened" or eventName == "rescueSandy" then
+    if eventName == "firstDoorOpened" or eventName == "rescueSandy" or eventName == "doorOpened" then
         self:goToNextStep()
     end
 

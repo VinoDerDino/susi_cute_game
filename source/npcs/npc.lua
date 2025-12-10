@@ -1,8 +1,11 @@
+import 'CoreLibs/animation'
+
 class("NPC").extends(playdate.graphics.sprite)
 
 local gfx <const> = playdate.graphics
 local Point <const> = playdate.geometry.point
 
+local sasser_slab_normal <const> = gfx.font.new("assets/fonts/PixelifySans/PixelifySans-Regular")
 local sasser_slab_family <const> = gfx.font.newFamily({
     [gfx.font.kVariantNormal] = "assets/fonts/PixelifySans/PixelifySans-Regular",
     [gfx.font.kVariantBold] = "assets/fonts/PixelifySans/PixelifySans-Bold",
@@ -12,8 +15,10 @@ local TRIGGER_DISTANCE <const> = 50
 local DIALOGUE_WIDTH <const> = 400
 local DIALOGUE_HEIGHT <const> = 50
 
-function NPC:init()
+function NPC:init(portrait_name)
     NPC.super.init(self)
+
+    self.portrait = gfx.animation.loop.new(150, gfx.imagetable.new("assets/images/npcs/" .. portrait_name), true)
 
     self.position = Point.new(0, 0)
     self.isPlayerNear = false
@@ -34,6 +39,14 @@ function NPC:init()
     self.tooltip:add()
 
     EventSystem:addListener(self)
+end
+
+function NPC:destroy()
+    EventSystem:removeListener(self)
+    if self.tooltip then
+        gfx.sprite.removeSprite(self.tooltip)
+        self.tooltip = nil
+    end
 end
 
 function NPC:place(x, y)
@@ -147,7 +160,7 @@ function NPC:applyCurrentStep()
     self:place(step.position.x, step.position.y)
 
     if step.dialogue then
-        self.dialogueBox = pdDialogueBox(step.dialogue, DIALOGUE_WIDTH, DIALOGUE_HEIGHT, sasser_slab_family)
+        self.dialogueBox = pdPortraitDialogueBox("", self.portrait, step.dialogue, DIALOGUE_WIDTH, DIALOGUE_HEIGHT, sasser_slab_normal)
         self.dialogueBox:setPadding(4)
 
         function self.dialogueBox:drawText(x, y, text)
@@ -158,10 +171,27 @@ function NPC:applyCurrentStep()
         function self.dialogueBox:drawBackground(x, y)
             playdate.graphics.setColor(playdate.graphics.kColorBlack)
             playdate.graphics.fillRect(x, y, self.width, self.height)
+            self:drawPortrait(x + self.portrait_x_position - self.portrait_width, y)
         end
 
         function self.dialogueBox:drawPrompt(x, y)
             pdDialogueBox.arrowPrompt(x + self.width - 12, y + self.height - 10, gfx.kColorWhite)
+        end
+
+        function self.dialogueBox:nextPage()
+            pdPortraitDialogueBox.super.nextPage(self)
+            self.portrait.shouldLoop = true
+        end
+
+        function self.dialogueBox:onPageComplete()
+            self.portrait.shouldLoop = false
+            self.portrait.frame = 1
+            self.dirty = true
+        end
+
+        function self.dialogueBox:finishLine()
+            pdPortraitDialogueBox.super.finishLine(self)
+            self.portrait.shouldLoop = false
         end
 
         function self.dialogueBox:onClose()

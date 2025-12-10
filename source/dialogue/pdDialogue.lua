@@ -557,9 +557,9 @@ function pdPortraitDialogueBox:drawPortrait(x, y)
     if self.nineSlice ~= nil then
         self.nineSlice:drawInRect(x, y, self.portrait_width, self.portrait_height)
     else
-        gfx.setColor(gfx.kColorWhite)
-        gfx.fillRect(x, y, self.portrait_width, self.portrait_height)
         gfx.setColor(gfx.kColorBlack)
+        gfx.fillRect(x, y, self.portrait_width, self.portrait_height)
+        gfx.setColor(gfx.kColorWhite)
         gfx.drawRect(x, y, self.portrait_width, self.height)
     end
 

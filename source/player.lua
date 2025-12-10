@@ -19,7 +19,7 @@ function Player:init(x, y)
     self:setImage(self.images:getImage(2))
     self:setZIndex(1000)
     self:setCenter(0.5, 1)
-    self:setCollideRect(0, 0, 20, 20)
+    self:setCollideRect(2, 0, 16, 20)
     -- self:setImageDrawMode(gfx.kDrawModeInverted)
 
     self.jumpTimer = playdate.frameTimer.new(10, 50, 30, playdate.easingFunctions.outQuad)
@@ -50,7 +50,24 @@ function Player:init(x, y)
 
     self.isDead = false
 
+    self.gravityEnabled = true
+    self.jumpEnabled = true
+
+    self.WALK_VELOCITY = WALK_VELOCITY
+
     self:reset(x, y)
+end
+
+function Player:setWalkingSpeed(speed)
+    self.WALK_VELOCITY = speed
+end
+
+function Player:disableGravity()
+    self.gravityEnabled = false
+end
+
+function Player:disableJump()
+    self.jumpEnabled = false
 end
 
 function Player:reset(x, y)
@@ -90,12 +107,12 @@ function Player:setOnGround(flag)
 end
 
 function Player:walkLeft()
-    self.velocity.x = -WALK_VELOCITY
+    self.velocity.x = -self.WALK_VELOCITY
     self.facing = "left"
 end
 
 function Player:walkRight()
-    self.velocity.x = WALK_VELOCITY
+    self.velocity.x = self.WALK_VELOCITY
     self.facing = "right"
 end
 
@@ -195,9 +212,9 @@ function Player:climb()
 
     if not self.jumpTimer.active then
         if playdate.buttonIsPressed(playdate.kButtonUp) then
-            self.velocity.y = -WALK_VELOCITY / 2
+            self.velocity.y = -self.WALK_VELOCITY / 2
         elseif playdate.buttonIsPressed(playdate.kButtonDown) then
-            self.velocity.y = WALK_VELOCITY / 2
+            self.velocity.y = self.WALK_VELOCITY / 2
         else
             self.velocity.y = 0
         end
@@ -235,12 +252,14 @@ function Player:normalMovement()
             self:walkLeft()
         else
             self.velocity.x = math.max(self.velocity.x - STRAVING_ACCELERATION * dt, -STRAVING_VELOCITY)
+            self.facing = "left"
         end
     elseif playdate.buttonIsPressed(playdate.kButtonRight) and self.movementEnabled then
         if self.onGround then
             self:walkRight()
         else
             self.velocity.x = math.min(self.velocity.x + STRAVING_ACCELERATION * dt, STRAVING_VELOCITY)
+            self.facing = "right"
         end
     elseif not self.onGround then
         self.velocity.x = self.velocity.x * 0.9
@@ -251,15 +270,17 @@ function Player:normalMovement()
         self.velocity.x = 0
     end
 
-    if playdate.buttonJustPressed(playdate.kButtonA) and self.movementEnabled  then
+    if playdate.buttonJustPressed(playdate.kButtonA) and self.movementEnabled and self.jumpEnabled then
         if self:jump() then
             SoundManager:playSound(SoundManager.kJump)
         end
-    elseif playdate.buttonIsPressed(playdate.kButtonA) and self.movementEnabled then
+    elseif playdate.buttonIsPressed(playdate.kButtonA) and self.movementEnabled and self.jumpEnabled then
         self:continueJump()
     end
 
-    self.velocity.y = self.velocity.y + GRAVITY_CONSTANT * dt
+    if self.gravityEnabled then
+        self.velocity.y = self.velocity.y + GRAVITY_CONSTANT * dt
+    end
 
     local velocityStep = self.velocity * dt
     self.position = self.position + velocityStep

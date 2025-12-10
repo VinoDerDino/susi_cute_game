@@ -156,6 +156,9 @@ function SockScreen:update()
     local selectedSock = self:getSock(self.selectedSockIndex)
     if not selectedSock then return end
     self:moveTo(selectedSock.menuPos.x - 2, selectedSock.menuPos.y - 2)
+    if selectedSock.isNew then
+        selectedSock.isNew = false
+    end
 end
 
 function SockScreen:drawScreen()

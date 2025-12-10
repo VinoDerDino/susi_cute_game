@@ -39,8 +39,10 @@ end
 
 function LevelOverview:draw()
     gfx.setColor(gfx.kColorBlack)
+
+    local txt = self.enabled and self.name or "???"
     gfx.getSystemFont(gfx.font.kVariantBold):drawText(
-        self.name, 100, 20, 200, 39, 0, gfx.kWrapClip, gfx.kAlignCenter)
+        txt, 100, 20, 200, 39, 0, gfx.kWrapClip, gfx.kAlignCenter)
 
     gfx.drawRect(79, 49, 242, 146)
 
@@ -73,10 +75,14 @@ end
 function LevelOverview:update()
     local step = 10
 
+    local lastX = self._x
+
     if self._x < self.newX then
         self._x = math.min(self._x + step, self.newX)
     else
         self._x = math.max(self._x - step, self.newX)
     end
     self:moveTo(self._x, self._y)
+
+    return lastX ~= self._x
 end

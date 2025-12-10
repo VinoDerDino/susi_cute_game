@@ -73,7 +73,6 @@ function Button:draw()
 end
 
 function Button:update()
-    self:markDirty()
     if not self.selected then
         self.isPressed = false
         return

@@ -15,8 +15,8 @@ function FloatingPlatform:init(x, y, endY)
     self.startY = y
     self.endY = endY
     self.progress = 0
-    self.downSpeed = 0.5
-    self.upSpeed = 0.3
+    self.speedDown = 0.5
+    self.speedUp = 0.3
 
     self:moveTo(x, y)
 end
@@ -36,20 +36,24 @@ function FloatingPlatform:updatePlayerDistance(playerPosition)
 end
 
 function FloatingPlatform:update()
-    if self.isPlayerOnTop and self.progress < 1 then
-        self.progress = math.min(self.progress + self.downSpeed / 100, 1)
-    elseif not self.isPlayerOnTop and self.progress > 0 then
-        self.progress = math.max(self.progress - self.upSpeed / 100, 0)
+    local newY = self.y
+
+    if self.isPlayerOnTop then
+        newY = math.min(self.y + self.speedDown, self.endY)
+    else
+        newY = math.max(self.y - self.speedUp, self.startY)
     end
 
-    local newY = self.startY + (self.endY - self.startY) * self.progress
     self:moveTo(self.x, newY)
-
     self:updateImage()
 end
 
 function FloatingPlatform:updateImage()
-    local imageIndex = math.floor(self.progress * 4) + 1
+    local ratio = (self.y - self.startY) / (self.endY - self.startY)
+    ratio = math.max(0, math.min(ratio, 1))
+
+    local imageIndex = math.floor(ratio * 4) + 1
     imageIndex = math.min(imageIndex, 5)
+
     self:setImage(self.images:getImage(imageIndex))
 end

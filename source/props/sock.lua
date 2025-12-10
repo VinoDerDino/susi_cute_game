@@ -20,6 +20,7 @@ function SockProp:init(id, x, y)
         self:setImage(self.sock.images:getImage(id))
     end
     self:setCollideRect(0, 0, 20, 20)
+    self:setCenter(0, 0)
 
     self.inLevelPosition = Point.new(x, y)
 
@@ -27,38 +28,6 @@ function SockProp:init(id, x, y)
     self.moveTimer.repeats = true
     self.moveTimer.reverses = true
     self.floatOffset = 0
-
-    local nineSlice = gfx.nineSlice.new("assets/images/ui/nineslice-kenney-1", 4, 4, 8, 8)
-    local roomX, roomY = self:getPositionInRoom()
-    local textTimer = 0
-    self.infoDialogueConfig = {
-        width = 300,
-        height = 40,
-        x = (roomX + 1) * 400 - 350,
-        y = (roomY + 1) * 240 - 65,
-        padding = 4,
-        font = font2,
-        nineSlice = nineSlice,
-        drawPrompt = function() end,
-        timer = 0,
-        onOpen = function() pdDialogue.DialogueBox:finishDialogue() end,
-        drawText = function(box, _x, _y, text)
-            textTimer += 1
-            print("X:", _x, "Y:", _y, "Timer: ", textTimer)
-            gfx.setFont(box.font or gfx.getSystemFont())
-            gfx.drawTextAligned(
-                text,
-                _x + box.width / 2 - box.padding,
-                _y,
-                kTextAlignment.center
-            )
-
-            if textTimer >= 240 then
-                pdDialogue.DialogueBox:disable()
-            end
-        end
-    }
-    self.infoShown = false
 
     self.animate = false
     self.animationTimer = 0
@@ -95,15 +64,12 @@ function SockProp:hit()
     if self.animate then return end
     self.sock:setOwned()
     self.animate = true
+    SoundManager:playSound(SoundManager.kCollect)
 end
 
 function SockProp:update()
     if self.animate then
         self:animateFound()
-        if not self.infoShown then
-            pdDialogue.say("Du hast eine Socke eingesammelt! Schau im Menue unter 'Deine Socken' nach!", self.infoDialogueConfig)
-            self.infoShown = true
-        end
         return
     end
     self:drawMovingAt(self.inLevelPosition.x, self.inLevelPosition.y)
