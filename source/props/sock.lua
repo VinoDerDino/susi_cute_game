@@ -47,7 +47,6 @@ function SockProp:animateFound()
     self.animationTimer += 1
 
     if (self.animationTimer % 20) == 0 then
-        print("ANIMATION TIMER: ", self.animationTimer)
         self.animFrame = self.animFrame == 1 and 2 or 1
         self:setImage(self.animFrame == 1 and
             self.sock.images:getImage(SOCK_ALREADY_FOUND) or

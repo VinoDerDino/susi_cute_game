@@ -84,8 +84,8 @@ function Level:close()
 
     if self.objects then
         for i, obj in ipairs(self.objects) do
-            if obj and obj.remove then
-                if obj.destory then
+            if obj then
+                if obj.destroy then
                     obj:destroy()
                 end
                 gfx.sprite.removeSprite(obj)
@@ -236,7 +236,7 @@ function Level:movePlayer()
             end
         elseif c.other:isa(TriggerBox) then
             c.other:handleTrigger()
-        elseif c.other:isa(Spike) then
+        elseif c.other:isa(SpikeHitbox) then
             local respawnPoint = c.other.spawnPoint
             if respawnPoint then
                 self.player:respawn(respawnPoint.x, respawnPoint.y)
@@ -297,23 +297,17 @@ end
 function Level:update()
     if self.sandy then
         if self.sandy.dialogueBox and self.sandy.dialogueBox.enabled then
-            self.sandy:setZIndex(-1)
-            self.player:setZIndex(-1)
+            self.sandy.dialogueBoxSprite:moveTo(0 + (self.activeRoomX - 1) * PD_WIDTH, 190 + (self.activeRoomY - 1) * PD_HEIGHT)
             self.player:setMovementEnabled(false)
-            self:setZIndexForObjects(-1)
-            self.sandy.dialogueBox:update()
         else
-            self:setZIndexForObjects(500)
-            self.sandy:setZIndex(900)
-            self.player:setZIndex(1000)
             self.player:setMovementEnabled(true)
         end
     end
     self:movePlayer()
-    self:updateObjects()
     if self.sandy then
         self.sandy:updatePlayerDistance(self.player.position)
     end
+    self:updateObjects()
     self:interact()
     self:updateRoomPosition()
 end

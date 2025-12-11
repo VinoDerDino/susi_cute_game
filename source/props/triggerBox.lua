@@ -13,9 +13,11 @@ function TriggerBox:init(x, y, w, h, toEmit, data, oneTime)
 end
 
 function TriggerBox:handleTrigger()
-    if self.oneTime and self.hasTriggered then
-        return
-    end
+    if self.hasTriggered then return end
     EventSystem:emitEvent(self.toEmit, self.data)
     self.hasTriggered = true
+
+    if self.oneTime then
+        self:remove()
+    end
 end

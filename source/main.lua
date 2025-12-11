@@ -15,6 +15,7 @@ local gfx <const> = playdate.graphics
 
 local function setup()
     playdate.display.setRefreshRate(50)
+    playdate.display.setInverted(true)
 
     GameState:init()
     -- GameState:load()
@@ -23,12 +24,16 @@ local function setup()
     local menuItem, error = menu:addCheckmarkMenuItem("Timer", GameState.data.settings.speedrunTimer, function(value)
         GameState:setSetting("speedrunTimer", value)
     end)
-    local menuItem2, error2 = menu:addMenuItem("Menu", function()
+    local menuItem2, error3 = menu:addCheckmarkMenuItem("Saving", GameState.data.settings.saving, function(value)
+        GameState:setSetting("saving", value)
+    end)
+    local menuItem3, error3 = menu:addMenuItem("Menu", function()
         GameState:setState(GameState.states.MENU)
     end)
 end
 
 setup()
+
 
 function playdate.update()
     GameState.game.showCrank = false

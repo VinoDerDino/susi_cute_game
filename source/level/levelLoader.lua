@@ -4,7 +4,7 @@ import 'props/door'
 import 'props/triggerBox'
 import 'props/movingTile'
 import 'props/twine'
-import 'props/spike'
+import 'props/spikeHitbox'
 import 'props/brick'
 import 'props/floatingPlatform'
 import 'props/sock'
@@ -207,16 +207,18 @@ local objectCreators = {
         return movingTile
     end,
 
-    Spike = function(objData, objectsById, objectTable, cache)
+    SpikeHitbox = function(objData, objectsById, objectTable, cache)
         local endPointId = getProperty(objData, "resetPoint")
-        local endPoint = getObjectById(objectsById, endPointId, "Spike")
-        local rotation = getProperty(objData, "rotation") or nil
+        local endPoint = getObjectById(objectsById, endPointId, "SpikeHitbox")
 
         if not endPoint then return nil end
 
-        local spike = Spike(objData.x, objData.y, endPoint.x, endPoint.y, rotation)
-        table.insert(objectTable, spike)
-        return spike
+        local width = objData.width or 16
+        local height = objData.height or 16
+
+        local spikeHitbox = SpikeHitbox(objData.x, objData.y, width, height, endPoint.x, endPoint.y)
+        table.insert(objectTable, spikeHitbox)
+        return spikeHitbox
     end,
 
     Twine = function(objData, objectsById, objectTable, cache)

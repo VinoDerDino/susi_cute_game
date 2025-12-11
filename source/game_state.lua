@@ -18,6 +18,7 @@ GameState.data = {
     },
     settings = {
         speedrunTimer = false,
+        saving = false,
     },
     level = {
         level1 = true,
@@ -97,17 +98,23 @@ function GameState:setMultiUnlocks(unlockTable)
     for key, value in pairs(unlockTable) do
         self.data.unlocked[key] = value
     end
-    -- self:save()
+    if self.data.settings.saving then
+        self:save()
+    end
 end
 
 function GameState:unlock(key)
     self.data.unlocked[key] = true
-    -- self:save()
+    if self.data.settings.saving then
+        self:save()
+    end
 end
 
 function GameState:lock(key)
     self.data.unlocked[key] = nil
-    -- self:save()
+    if self.data.settings.saving then
+        self:save()
+    end
 end
 
 function GameState:isUnlocked(key)
@@ -116,7 +123,9 @@ end
 
 function GameState:setSetting(key, value)
     self.data.settings[key] = value
-    -- self:save()
+    if self.data.settings.saving then
+        self:save()
+    end
 end
 
 function GameState:getSetting(key, default)
@@ -194,7 +203,7 @@ function GameState:isInState(state)
     return self.currentState == state
 end
 
-function GameState:draw()
+function GameState:draw2()
     local state = self.currentState
 
     if state == nil then return end
@@ -243,6 +252,52 @@ function GameState:draw()
     gfx.popContext()
 
     screenImage:invertedImage():draw(0,0)
+end
+
+function GameState:draw()
+    local state = self.currentState
+    if state == nil then return end
+
+    if state == self.states.LEVEL and self.game.nextLevel and not self.currentOutro then
+        self.game.currentLevel = self.game.nextLevel
+        self.game.nextLevel = nil
+        self.game.currentLevel:open()
+    end
+
+    if state == self.states.LEVEL and self.game.currentLevel then
+        local offsetX = -((self.game.currentLevel.activeRoomX - 1) * 400)
+        local offsetY = -((self.game.currentLevel.activeRoomY - 1) * 240)
+        gfx.setDrawOffset(offsetX, offsetY)
+
+        gfx.sprite.update()
+        pdDialogue.update()
+        playdate.frameTimer.updateTimers()
+
+    elseif state == self.states.LEVEL and self.game.nextLevel then
+        gfx.sprite.update()
+        pdDialogue.update()
+
+    elseif state == self.states.MENU and self.game.menuScreen then
+        gfx.sprite.update()
+        self.game.menuScreen:draw()
+        if self.game.helpScreen and self.game.helpScreen.outro == true then
+            self.game.helpScreen:draw()
+        end
+
+    elseif state == self.states.SOCKS and self.game.sockScreen then
+        gfx.sprite.update()
+        self.game.sockScreen:drawScreen()
+
+    elseif state == self.states.LEVEL_MENU and self.game.levelMenuScreen then
+        gfx.sprite.update()
+        self.game.levelMenuScreen:draw()
+
+    elseif state == self.states.HELP and self.game.helpScreen then
+        gfx.sprite.update()
+        self.game.helpScreen:draw()
+    end
+
+    gfx.setDrawOffset(0, 0)
 end
 
 function GameState:debugDraw()

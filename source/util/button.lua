@@ -22,9 +22,6 @@ function Button:init(x, y, width, height, label, nb, callback)
     self.selected = false
     self.isPressed = false
     self.callback = callback
-    self.cursorDt = 0
-    self.animateCursor = false
-    self.cursorBig = true
 
     self.pawtable = playdate.graphics.imagetable.new("assets/images/ui/paw")
     self.background = playdate.graphics.image.new("assets/images/ui/button")
@@ -42,7 +39,6 @@ function Button:setSelected(flag)
     end
 
     self.selected = flag
-    self.cursorBig = false
 end
 
 function Button:drawCursor()
@@ -73,6 +69,7 @@ function Button:draw()
 end
 
 function Button:update()
+    self:markDirty()
     if not self.selected then
         self.isPressed = false
         return
@@ -85,17 +82,7 @@ function Button:update()
                 self.callback()
             end
             self.isPressed = false
-            self.animateCursor = false
-            self.cursorDt = 0
-            self.cursorBig = true
             SoundManager:playSound(SoundManager.kButtonA)
-        else
-            self.animateCursor = true
-            self.cursorDt += 1
-            if self.cursorDt > 30 then
-                self.cursorBig = not self.cursorBig
-                self.cursorDt = 0
-            end
         end
     end
 end

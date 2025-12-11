@@ -54,7 +54,7 @@ function LevelPickerScreen:hide()
 end
 
 function LevelPickerScreen:updateLevelSelection()
-    if self.inTransition or self.outro then return end
+    if self.inTransition or self.outro or self.intro then return end
 
     if playdate.buttonJustPressed(playdate.kButtonLeft) then
         self.lastLevelIndex = self.currentLevelIndex

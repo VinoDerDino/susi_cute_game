@@ -38,6 +38,8 @@ function NPC:init(portrait_name)
     self.tooltip:setVisible(false)
     self.tooltip:add()
 
+    self.dialogueBoxSprite = nil
+
     EventSystem:addListener(self)
 end
 
@@ -46,6 +48,11 @@ function NPC:destroy()
     if self.tooltip then
         gfx.sprite.removeSprite(self.tooltip)
         self.tooltip = nil
+    end
+
+    if self.dialogueBoxSprite then
+        gfx.sprite.removeSprite(self.dialogueBoxSprite)
+        self.dialogueBoxSprite = nil
     end
 end
 
@@ -75,7 +82,7 @@ function NPC:interact(skipPlayerNearCheck)
 
     if self.dialogueBox then
         playdate.inputHandlers.push(self.dialogueBox:getInputHandlers())
-        self.dialogueBox:enable()
+        self.dialogueBoxSprite:add()
     end
 end
 
@@ -150,6 +157,13 @@ function NPC:loadConfig(config)
     self:applyCurrentStep()
 end
 
+function NPC:removeDialogueSprite()
+    if self.dialogueBoxSprite then
+        gfx.sprite.removeSprite(self.dialogueBoxSprite)
+        self.dialogueBoxSprite = nil
+    end
+end
+
 function NPC:applyCurrentStep()
     local step = self.sequence[self.currentStepId]
     if not step then
@@ -162,6 +176,8 @@ function NPC:applyCurrentStep()
     if step.dialogue then
         self.dialogueBox = pdPortraitDialogueBox("", self.portrait, step.dialogue, DIALOGUE_WIDTH, DIALOGUE_HEIGHT, sasser_slab_normal)
         self.dialogueBox:setPadding(4)
+
+        local npc = self
 
         function self.dialogueBox:drawText(x, y, text)
             playdate.graphics.setImageDrawMode(playdate.graphics.kDrawModeFillWhite)
@@ -197,13 +213,15 @@ function NPC:applyCurrentStep()
         function self.dialogueBox:onClose()
             playdate.inputHandlers.pop()
 
+            npc.isPlayerNear = false
+            npc.dialogueBoxSprite:remove()
+
             if step.onDialogueEnd then
                 for _, cmd in ipairs(step.onDialogueEnd) do
                     if cmd == "goToNextStep" and not step.waitFor then
-                        print("REALY GOING TO NEXT STEP")
-                        self.npc:goToNextStep()
+                        npc:goToNextStep()
                     elseif cmd == "goToSameStep" then
-                        self.npc:applyCurrentStep()
+                        npc:applyCurrentStep()
                     elseif cmd == "enableCranking" then
                         GameState:unlock("cranking")
                     elseif cmd == "enableTwines" then
@@ -215,15 +233,21 @@ function NPC:applyCurrentStep()
                     end
                 end
             else
-                self.npc:goToNextStep()
+                npc:goToNextStep()
             end
-
-            self.isPlayerNear = false
         end
 
         self.dialogueBox.npc = self
+        self:removeDialogueSprite()
+        self.dialogueBoxSprite = self.dialogueBox:asSprite()
+        self.dialogueBoxSprite.image = gfx.image.new(DIALOGUE_WIDTH, DIALOGUE_HEIGHT)
+        self.dialogueBoxSprite:setImage(self.dialogueBoxSprite.image)
+        self.dialogueBoxSprite:setZIndex(7000)
+        self.dialogueBoxSprite:setCenter(0, 0)
+        self.dialogueBoxSprite:moveTo(0, 240 - DIALOGUE_HEIGHT)
     else
         self.dialogueBox = nil
+        self:removeDialogueSprite()
     end
 
     if step.action then

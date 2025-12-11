@@ -52,7 +52,6 @@ function Cranking:updateCrank(player)
     if self.isPlayerNear then
         if playdate.isCrankDocked() then
             GameState.game.showCrank = true
-            -- Hier muss dann eine ui gezeichnet werden, die anzeigt, das man die crank nutzen soll
         else
             self.progressBar:setVisible(true)
             local ticks = playdate.getCrankTicks(CRANK_SENSITIVITY)
