@@ -6,11 +6,12 @@ local SEGMENT_HEIGHT <const> = 20
 
 local gfx <const> = playdate.graphics
 
+local twineImageTable <const> = gfx.imagetable.new("assets/images/props/twine")
+
 function Twine:init(x, y, endY)
     Twine.super.init(self, x, y)
 
-    self.images = gfx.imagetable.new("assets/images/props/twine")
-    self:setImage(self.images:getImage(1))
+    self:setImage(twineImageTable:getImage(1))
     self:setZIndex(500)
     self:setCenter(0.5, 1)
     self:setCollideRect(0, 0, 20, 20)
@@ -27,6 +28,8 @@ function Twine:init(x, y, endY)
 
     self.idleTimer = 0
     self.idleImageIndex = 1
+
+    self.isTwine = true
 end
 
 function Twine:destroy()
@@ -43,7 +46,7 @@ function Twine:spawnStemSegment(yPosition)
     local index = (self.timer % 2 == 0) and 5 or 6
     local segment = gfx.sprite.new()
 
-    segment:setImage(self.images:getImage(index))
+    segment:setImage(twineImageTable:getImage(index))
     segment:setCenter(0.5, 1)
     segment:moveTo(self.x, yPosition)
     segment:setZIndex(499)
@@ -76,7 +79,7 @@ function Twine:update()
             if self.idleImageIndex > 3 then
                 self.idleImageIndex = 1
             end
-            self:setImage(self.images:getImage(self.idleImageIndex))
+            self:setImage(twineImageTable:getImage(self.idleImageIndex))
         end
     end
 end
@@ -85,7 +88,7 @@ function Twine:grow()
     if self.fullGrown then return end
 
     if self.currentHeight <= self.targetHeight then
-        self:setImage(self.images:getImage(7))
+        self:setImage(twineImageTable:getImage(7))
         self.fullGrown = true
         self:updateCollideRect()
         return
@@ -93,7 +96,7 @@ function Twine:grow()
 
     if self.phase == 0 then
         self.phase = 1
-        self:setImage(self.images:getImage(4))
+        self:setImage(twineImageTable:getImage(4))
         return
     end
 
@@ -105,10 +108,10 @@ function Twine:grow()
         self:updateCollideRect()
 
         if self.currentHeight <= self.targetHeight then
-            self:setImage(self.images:getImage(7))
+            self:setImage(twineImageTable:getImage(7))
             self.fullGrown = true
         else
-            self:setImage(self.images:getImage(4))
+            self:setImage(twineImageTable:getImage(4))
         end
     end
 end

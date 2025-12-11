@@ -17,7 +17,6 @@ GameState.data = {
         twineGrowth = false,
     },
     settings = {
-        speedrunTimer = false,
         saving = false,
     },
     level = {
@@ -133,8 +132,6 @@ function GameState:getSetting(key, default)
     return default
 end
 
-local END_LEVEL_ID <const> = 5
-
 function GameState:setCurrentLevel(levelId)
     local levelPaths = {
         "assets/maps/level_1.json",
@@ -203,57 +200,6 @@ function GameState:isInState(state)
     return self.currentState == state
 end
 
-function GameState:draw2()
-    local state = self.currentState
-
-    if state == nil then return end
-
-    if state == self.states.LEVEL and self.game.nextLevel and not self.currentOutro then
-        self.game.currentLevel = self.game.nextLevel
-        self.game.nextLevel = nil
-        self.game.currentLevel:open()
-        print("LEVEL SET")
-    end
-
-    gfx.clear(gfx.kColorBlack)
-    local screenImage = gfx.image.new(400, 240)
-
-    gfx.pushContext(screenImage)
-        if state == self.states.LEVEL and self.game.currentLevel then
-            local offsetX = -((self.game.currentLevel.activeRoomX - 1) * 400)
-            local offsetY = -((self.game.currentLevel.activeRoomY - 1) * 240)
-            gfx.setDrawOffset(offsetX, offsetY)
-
-            gfx.sprite.update()
-            pdDialogue.update()
-            playdate.frameTimer.updateTimers()
-        elseif state == self.states.LEVEL and self.game.nextLevel then
-            gfx.sprite.update()
-            pdDialogue.update()
-        elseif state == self.states.MENU and self.game.menuScreen then
-            gfx.sprite.update()
-            self.game.menuScreen:draw()
-            if self.game.helpScreen and self.game.helpScreen.outro == true then
-                self.game.helpScreen:draw()
-            end
-        elseif state == self.states.SOCKS and self.game.sockScreen then
-            gfx.sprite.update()
-            self.game.sockScreen:drawScreen()
-        elseif state == self.states.LEVEL_MENU and self.game.levelMenuScreen then
-            gfx.sprite.update()
-            self.game.levelMenuScreen:draw()
-        elseif state == self.states.HELP and self.game.helpScreen then
-            gfx.sprite.update()
-            self.game.helpScreen:draw()
-        else
-            gfx.popContext()
-            return
-        end
-    gfx.popContext()
-
-    screenImage:invertedImage():draw(0,0)
-end
-
 function GameState:draw()
     local state = self.currentState
     if state == nil then return end
@@ -270,7 +216,6 @@ function GameState:draw()
         gfx.setDrawOffset(offsetX, offsetY)
 
         gfx.sprite.update()
-        pdDialogue.update()
         playdate.frameTimer.updateTimers()
 
     elseif state == self.states.LEVEL and self.game.nextLevel then
@@ -298,16 +243,6 @@ function GameState:draw()
     end
 
     gfx.setDrawOffset(0, 0)
-end
-
-function GameState:debugDraw()
-    local state = self.currentState
-
-    if state == nil then return end
-
-    if state == self.states.LEVEL and self.game.currentLevel then
-        self.game.currentLevel:debugDraw()
-    end
 end
 
 function GameState:init()

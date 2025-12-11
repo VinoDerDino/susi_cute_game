@@ -11,4 +11,6 @@ function SpikeHitbox:init(x, y, width, height, spawnX, spawnY)
     self:setVisible(false)
 
     self.spawnPoint = playdate.geometry.point.new(spawnX, spawnY)
+
+    self.isSpikeHitbox = true
 end

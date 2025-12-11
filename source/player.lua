@@ -20,7 +20,6 @@ function Player:init(x, y)
     self:setZIndex(1000)
     self:setCenter(0.5, 1)
     self:setCollideRect(2, 0, 16, 20)
-    -- self:setImageDrawMode(gfx.kDrawModeInverted)
 
     self.jumpTimer = playdate.frameTimer.new(10, 50, 30, playdate.easingFunctions.outQuad)
     self.jumpTimer.discardOnCompletion = false
@@ -31,8 +30,6 @@ function Player:init(x, y)
 
     local spawnX = x or 50
     local spawnY = y or 50
-
-    print("Setting respawn point to x:" .. tostring(spawnX) .. " y:" .. tostring(spawnY))
 
     self.respawnPoint = Point.new(spawnX, spawnY)
 
@@ -157,46 +154,37 @@ end
 
 function Player:updateImage()
     local oldImageIndex = self.imageIndex
-    self.imageDt = self.imageDt + 1
+
+    self.imageDt += 1
     local frame = math.floor(self.imageDt / 20) % 2
+
     if self.interacting then
         self.imageIndex = 5 + frame
-        self:setImage(self.images:getImage(self.imageIndex))
     elseif self.isClimbing then
-        if self.isMoving then
-            self.imageIndex = 7 + frame
-            self:setImage(self.images:getImage(self.imageIndex))
-            if oldImageIndex ~= self.imageIndex then
-                SoundManager:playSound(SoundManager.kClimb)
-            end
-        else
-            self.imageIndex = 7
-            self:setImage(self.images:getImage(self.imageIndex))
+        self.imageIndex = self.isMoving and (7 + frame) or 7
+        if self.imageIndex ~= oldImageIndex then
+            SoundManager:playSound(SoundManager.kClimb)
         end
     elseif self.onGround then
         if self.velocity.x ~= 0 then
-            if self.facing == "left" then
-                self.imageIndex = 3 + frame
-                self:setImage(self.images:getImage(self.imageIndex), "flipX")
-            else
-                self.imageIndex = 3 + frame
-                self:setImage(self.images:getImage(self.imageIndex))
-            end
-            if oldImageIndex ~= self.imageIndex then
+            self.imageIndex = 3 + frame
+            if self.imageIndex ~= oldImageIndex then
                 SoundManager:playSound(SoundManager.kStepSusi)
             end
         else
-            if self.facing == "left" then
-                self:setImage(self.images:getImage(2), "flipX")
-            else
-                self:setImage(self.images:getImage(2))
-            end
+            self.imageIndex = 2
         end
     else
-        if self.facing == "left" then
-            self:setImage(self.images:getImage(1), "flipX")
+        self.imageIndex = 1
+    end
+
+    local flipX = self.facing == "left"
+
+    if oldImageIndex ~= self.imageIndex then
+        if flipX then
+            self:setImage(self.images:getImage(self.imageIndex), "flipX")
         else
-            self:setImage(self.images:getImage(1))
+            self:setImage(self.images:getImage(self.imageIndex))
         end
     end
 end
@@ -310,19 +298,4 @@ function Player:update()
     if self.interactDepleation <= 0 then
         self:setInteracting(false)
     end
-end
-
-function Player:debugDraw()
-    local roomX = math.floor(self.position.x / 400)
-    local roomY = math.floor(self.position.y / 240)
-
-    local r = self:getCollideRect()
-    local sx, sy = self:getPosition()
-    local cx, cy = self:getCenter()
-    local w, h = self:getSize()
-
-    local x = (sx - (w * cx) + r.x) - 400 * roomX
-    local y = (sy - (h * cy) + r.y) - 240 * roomY
-
-    playdate.graphics.drawRect(x, y, r.width, r.height)
 end

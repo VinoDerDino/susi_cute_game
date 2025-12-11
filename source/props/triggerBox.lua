@@ -10,6 +10,8 @@ function TriggerBox:init(x, y, w, h, toEmit, data, oneTime)
     self.data = data
     self.hasTriggered = false
     self.oneTime = oneTime or false
+
+    self.isTriggerBox = true
 end
 
 function TriggerBox:handleTrigger()

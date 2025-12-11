@@ -5,6 +5,7 @@ class("Door").extends(Moving)
 local TILE_SIZE <const> = 20
 
 local gfx <const> = playdate.graphics
+local nineSlice <const> = gfx.nineSlice.new("assets/images/props/door.png", 2, 2, 16, 16)
 
 function Door:init(x, y, height, emitEvent)
     local endY = y + height
@@ -19,7 +20,6 @@ function Door:init(x, y, height, emitEvent)
     self.emitEvent = emitEvent
     self.alreadyEmitted = false
 
-    self.nineSlice = gfx.nineSlice.new("assets/images/props/door.png", 2, 2, 16, 16)
     self.sliceRect = playdate.geometry.rect.new(0, 0, TILE_SIZE, self.height)
 end
 
@@ -40,5 +40,5 @@ function Door:draw(x, y, width, height)
     self.sliceRect.height = visibleHeight
     self.sliceRect.y = 0
 
-    self.nineSlice:drawInRect(self.sliceRect)
+    nineSlice:drawInRect(self.sliceRect)
 end

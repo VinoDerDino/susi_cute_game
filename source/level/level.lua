@@ -30,6 +30,8 @@ function Level:init(levelPath)
     self.triggers = importTriggersFromTiledJSON(jsonTable)
     self.spikes = importSpikesFromTiledJSON(jsonTable)
 
+    self.objectsWithDistanceUpdates = {}
+
     self.walls = self.layers["walls"]
     self.wallSprites = {}
     self.deco = self.layers["deco"] or {}
@@ -46,6 +48,8 @@ function Level:init(levelPath)
 
     self.sandy = Sandy(getSandyConfig(jsonTable))
     self.player = Player(properties.playerSpawnX or 20, properties.playerSpawnY or 20)
+
+    self.frameCounter = 1
 end
 
 function Level:open()
@@ -59,6 +63,8 @@ function Level:open()
     end
     self:add()
     self.runStartTime = playdate.getCurrentTimeMilliseconds()
+
+    print("Total objects in level: " .. tostring(#self.objects))
 end
 
 function Level:close()
@@ -68,6 +74,7 @@ function Level:close()
     end
 
     if self.sandy then
+        EventSystem:removeListener(self.sandy)
         self.sandy:destroy()
         gfx.sprite.removeSprite(self.sandy)
         self.sandy = nil
@@ -137,6 +144,9 @@ end
 function Level:setupObjects()
     for i, obj in ipairs(self.objects) do
         obj:add()
+        if obj.updatePlayerDistance then
+            table.insert(self.objectsWithDistanceUpdates, obj)
+        end
     end
 end
 
@@ -174,6 +184,7 @@ function Level:movePlayer()
     end
 
     local collisions, len
+
     self.player.position.x , self.player.position.y, collisions, len = self.player:moveWithCollisions(self.player.position)
     local playerWasOnGround = self.player.onGround
 
@@ -181,8 +192,6 @@ function Level:movePlayer()
     self.player:setClimbing(false)
     self.player:setInteracting(false)
     self.player:setOnPlatform(nil)
-
-    local playerCanRespawn = true
 
     for i = 1, len do
         local c = collisions[i]
@@ -198,7 +207,6 @@ function Level:movePlayer()
                 end
             end
         elseif c.other.isPlatform then
-            playerCanRespawn = false
             if c.normal.y < 0 then
                 self.player:setOnGround(true)
                 self.player:setOnPlatform(c.other)
@@ -212,8 +220,7 @@ function Level:movePlayer()
                     self.player.velocity.y = 100
                 end
             end
-        elseif c.other:isa(FloatingPlatform) then
-            playerCanRespawn = false
+        elseif c.other.isFloatingPlatform then
             if c.normal.y < 0 then
                 self.player:setOnGround(true)
                 self.player.velocity.y = 0
@@ -221,35 +228,31 @@ function Level:movePlayer()
                 self.player.velocity.y = 100
                 SoundManager:playSound(SoundManager.kHeadbut)
             end
-        elseif c.other:isa(Spring) then
-            playerCanRespawn = false
+        elseif c.other.isSpring then
             if c.normal.y < 0 then
                 self.player.velocity.y = -c.other.strength
                 SoundManager:playSound(SoundManager.kSpring)
+                c.other.isPlayerOnTop = true
             elseif c.normal.y > 0 then
                 self.player.velocity.y = 100
                 SoundManager:playSound(SoundManager.kHeadbut)
             end
-        elseif c.other:isa(Twine) then
+        elseif c.other.isTwine then
             if c.other.fullGrown then
                 self.player:setClimbing(true)
             end
-        elseif c.other:isa(TriggerBox) then
+        elseif c.other.isTriggerBox then
             c.other:handleTrigger()
-        elseif c.other:isa(SpikeHitbox) then
+        elseif c.other.isSpikeHitbox then
             local respawnPoint = c.other.spawnPoint
             if respawnPoint then
                 self.player:respawn(respawnPoint.x, respawnPoint.y)
             else
-                self.player:respawn()
+                self.player:respawn(0, 0)
             end
-        elseif c.other:isa(SockProp) then
+        elseif c.other.isSockProp then
             c.other:hit()
         end
-    end
-
-    if playerCanRespawn and self.player.onGround then
-        self.player:setRespawnPoint(self.player.position.x, self.player.position.y)
     end
 
     if not playerWasOnGround and self.player.onGround then
@@ -277,24 +280,14 @@ function Level:interact()
 end
 
 function Level:updateObjects()
-    for _, obj in ipairs(self.objects) do
-        if obj.updatePlayerDistance then
-            obj:updatePlayerDistance(self.player.position)
-        end
-    end
-end
-
-function Level:setZIndexForObjects(zIndex)
-    for _, obj in ipairs(self.objects) do
-        obj:setZIndex(zIndex)
-    end
-
-    for _, spike in ipairs(self.spikes) do
-        spike:setZIndex(zIndex)
+    if self.frameCounter == 2 then return end
+    for _, obj in ipairs(self.objectsWithDistanceUpdates) do
+        obj:updatePlayerDistance(self.player.position)
     end
 end
 
 function Level:update()
+    self.frameCounter = self.frameCounter == 1 and 2 or 1
     if self.sandy then
         if self.sandy.dialogueBox and self.sandy.dialogueBox.enabled then
             self.sandy.dialogueBoxSprite:moveTo(0 + (self.activeRoomX - 1) * PD_WIDTH, 190 + (self.activeRoomY - 1) * PD_HEIGHT)
@@ -320,24 +313,4 @@ function Level:draw(x, y, width, height)
     if self.deco and self.deco.tilemap then
         self.deco.tilemap:draw(0, 0)
     end
-
-    if self.sandy and self.sandy.dialogueBox and self.sandy.dialogueBox.enabled then
-        self.sandy.dialogueBox:draw(0 + (self.activeRoomX - 1) * PD_WIDTH, 190 + (self.activeRoomY - 1) * PD_HEIGHT)
-        gfx.setImageDrawMode(gfx.kDrawModeCopy)
-    end
-
-    self:drawTimer()
-end
-
-function Level:drawTimer()
-    if not GameState.data.settings.speedrunTimer then return end
-    local time = playdate.getCurrentTimeMilliseconds() - self.runStartTime
-    local seconds = math.floor(time / 1000)
-    local ms = math.floor((time % 1000) / 10)
-
-    gfx.drawText(string.format("%02d:%02d.%02d",
-        seconds // 60,
-        seconds % 60,
-        ms
-    ), PD_WIDTH - 65 + (self.activeRoomX - 1) * PD_WIDTH, 2 + (self.activeRoomY - 1) * PD_HEIGHT)
 end

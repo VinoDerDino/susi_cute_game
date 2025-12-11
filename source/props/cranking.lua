@@ -8,45 +8,48 @@ local CRANK_SENSITIVITY <const> = 15
 local gfx <const> = playdate.graphics
 local Point <const> = playdate.geometry.point
 
+local progressBarTable <const> = gfx.imagetable.new("assets/images/props/progressbar")
+
 function Cranking:init(x, y)
     Cranking.super.init(self)
 
     self.position = Point.new(x, y)
     self.isPlayerNear = false
 
+    self.lastCrankValue = 0
     self.crankValue = 0
     self.dtCounter = 0
     self.crankMomentum = 0
 
-    self.barWidth = 40
-    self.barHeight = 6
-
     self.progressBar = gfx.sprite.new()
+    self.progressBar:setImage(progressBarTable:getImage(1))
     self.progressBar:setZIndex(900)
-    self:updateProgressBarImage()
     self.progressBar:setCenter(0.5, 1)
     self.progressBar:moveTo(x, y - 30)
     self.progressBar:setVisible(false)
     self.progressBar:add()
+
+    self.lastProgressFrame = 1
 
     self.roomX = math.floor(x / 400) + 1
     self.roomY = math.floor(y / 240) + 1
 
     self.fullCranked = false
     self.isPlayerInSameRoom = false
+    self.crankValueChanged = false
 end
 
 function Cranking:updatePlayerDistance(playerPosition)
     local dist = self.position:distanceToPoint(playerPosition)
     self.isPlayerNear = dist < TRIGGER_DISTANCE
 
-    local playerRoomX = math.floor(playerPosition.x / 400) + 1
-    local playerRoomY = math.floor(playerPosition.y / 240) + 1
+    -- local playerRoomX = math.floor(playerPosition.x / 400) + 1
+    -- local playerRoomY = math.floor(playerPosition.y / 240) + 1
 
-    self.isPlayerInSameRoom = (playerRoomX == self.roomX) and (playerRoomY == self.roomY)
+    -- self.isPlayerInSameRoom = (playerRoomX == self.roomX) and (playerRoomY == self.roomY)
 end
 
-function Cranking:updateCrank(player)
+function Cranking:updateCrank()
     local isCranking = false
 
     if self.isPlayerNear then
@@ -58,15 +61,9 @@ function Cranking:updateCrank(player)
 
             if ticks ~= 0 then
                 isCranking = true
-                local previousValue = self.crankValue
+                self.lastCrankValue = self.crankValue
                 self.crankValue = math.min(self.crankValue + math.abs(ticks), MAX_CRANK_VALUE)
                 self.crankMomentum = math.abs(ticks)
-
-                if previousValue < MAX_CRANK_VALUE and self.crankValue == MAX_CRANK_VALUE then
-                    if self.connectedProp and self.connectedProp.onCrankCompleted then
-                        self.connectedProp:onCrankCompleted()
-                    end
-                end
             end
 
             self.crankMomentum = math.max(0, self.crankMomentum - 0.2)
@@ -91,6 +88,8 @@ function Cranking:updateCrank(player)
             self.connectedProp:onCrankCompleted()
         end
     end
+
+    self.crankValueChanged = (self.lastCrankValue ~= self.crankValue)
 end
 
 function Cranking:updateProgressBarImage()
@@ -99,16 +98,16 @@ function Cranking:updateProgressBarImage()
         return
     end
 
-    local img = gfx.image.new(self.barWidth, self.barHeight)
-    gfx.pushContext(img)
+    self.progressBar:setVisible(true)
 
-        gfx.setColor(gfx.kColorBlack)
-        gfx.fillRoundRect(0, 0, self.barWidth, self.barHeight, 2)
+    local frameCount = 36
+    local index = math.floor((self.crankValue / MAX_CRANK_VALUE) * (frameCount - 1)) + 1
 
-        local fillWidth = (self.crankValue / MAX_CRANK_VALUE) * (self.barWidth - 2)
-        gfx.setColor(gfx.kColorWhite)
-        gfx.fillRoundRect(1, 1, fillWidth, self.barHeight - 2, 2)
+    if index < 1 then index = 1 end
+    if index > frameCount then index = frameCount end
 
-    gfx.popContext()
-    self.progressBar:setImage(img)
+    if self.lastProgressFrame ~= index then
+        self.progressBar:setImage(progressBarTable:getImage(index))
+        self.lastProgressFrame = index
+    end
 end

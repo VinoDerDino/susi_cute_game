@@ -2,10 +2,12 @@ class("Brick").extends(playdate.graphics.sprite)
 
 local DIMENSION <const> = 20
 
+local brickImage = playdate.graphics.image.new("assets/images/props/brick")
+
 function Brick:init(x, y, disappearsOn)
     local trueX, trueY = x + DIMENSION / 2, y + DIMENSION
 
-    self:setImage(playdate.graphics.image.new("assets/images/props/brick"))
+    self:setImage(brickImage)
 
     self:setCollideRect(0, 0, DIMENSION, DIMENSION)
     self:setCenter(0.5, 1)

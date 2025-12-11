@@ -2,11 +2,12 @@ class("FloatingPlatform").extends(playdate.graphics.sprite)
 
 local HALF_DIMENSION <const> = 10
 
+local floatingPlatformImages <const> = playdate.graphics.imagetable.new("assets/images/props/floating_platform")
+
 function FloatingPlatform:init(x, y, endY)
     FloatingPlatform.super.init(self)
 
-    self.images = playdate.graphics.imagetable.new("assets/images/props/floating_platform")
-    self:setImage(self.images:getImage(1))
+    self:setImage(floatingPlatformImages:getImage(1))
     self:setCenter(0.5, 1)
     self:setCollideRect(0, 0, 20, 20)
     self:setZIndex(500)
@@ -19,6 +20,8 @@ function FloatingPlatform:init(x, y, endY)
     self.speedUp = 0.3
 
     self:moveTo(x, y)
+
+    self.isFloatingPlatform = true
 end
 
 function FloatingPlatform:updatePlayerDistance(playerPosition)
@@ -55,5 +58,5 @@ function FloatingPlatform:updateImage()
     local imageIndex = math.floor(ratio * 4) + 1
     imageIndex = math.min(imageIndex, 5)
 
-    self:setImage(self.images:getImage(imageIndex))
+    self:setImage(floatingPlatformImages:getImage(imageIndex))
 end

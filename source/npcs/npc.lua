@@ -260,7 +260,10 @@ end
 
 function NPC:goToNextStep()
     local nextStepId = self.sequence[self.currentStepId].nextStepId
-    if not nextStepId then return end
+    if not nextStepId then 
+        print("NPC goToNextStep: no next step from stepId " .. tostring(self.currentStepId))
+        return
+    end
 
     self.currentStepId = nextStepId
     self:applyCurrentStep()
