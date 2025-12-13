@@ -14,15 +14,17 @@ import 'game_state'
 local gfx <const> = playdate.graphics
 
 local function setup()
-    playdate.display.setRefreshRate(50)
+    playdate.display.setRefreshRate(30)
     playdate.display.setInverted(true)
 
+    GameState:load()
     GameState:init()
-    -- GameState:load()
 
     local menu = playdate.getSystemMenu()
-    local menuItem2, error3 = menu:addCheckmarkMenuItem("Saving", GameState.data.settings.saving, function(value)
-        GameState:setSetting("saving", value)
+    local menuItem2, error2 = menu:addMenuItem("Neues Spiel", function()
+        playdate.datastore.delete()
+        playdate.restart()
+        setup()
     end)
     local menuItem3, error3 = menu:addMenuItem("Menu", function()
         GameState:setState(GameState.states.MENU)
@@ -44,5 +46,17 @@ function playdate.update()
 end
 
 function playdate.gameWillTerminate()
-    -- GameState:save()
+    GameState:save()
+end
+
+function playdate.gameWillSleep()
+    GameState:save()
+end
+
+function playdate.gameWillPause()
+    GameState:constructMenuImage()
+end
+
+function playdate.gameWillResume()
+    playdate.setMenuImage(nil)
 end

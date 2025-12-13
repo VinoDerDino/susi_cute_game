@@ -11,7 +11,7 @@ function LevelPickerScreen:init()
         level1 = LevelOverview({name = "Tag 1: Hilf Sandy!", levelIndex = 1, sockIndexes = {1, 2, 3, 4, 5}, enabled = GameState.data.level.level1}),
         level2 = LevelOverview({name = "Tag 2: Verstecke", levelIndex = 2, sockIndexes = {6, 7, 8, 9, 10}, enabled = GameState.data.level.level2}),
         level3 = LevelOverview({name = "Tag 3: Trampolinpark", levelIndex = 3, sockIndexes = {11, 12, 13, 14, 15}, enabled = GameState.data.level.level3}),
-        level4 = LevelOverview({name = "Tag 4: TBD", levelIndex = 4, sockIndexes = {16, 17, 18, 19, 20}, enabled = GameState.data.level.level4}),
+        level4 = LevelOverview({name = "Tag 4: Wo ist das Essen?", levelIndex = 4, sockIndexes = {16, 17, 18, 19, 20}, enabled = GameState.data.level.level4}),
         level5 = LevelOverview({name = "Tag 5: Sandiger Strand", levelIndex = 5, sockIndexes = {21, 22, 23, 24, 25}, enabled = GameState.data.level.level5}),
     }
 
@@ -24,7 +24,7 @@ function LevelPickerScreen:init()
     self.outro = false
 
     self.areOverviewsMoving = false
-    
+
     self._y = 240
     self:setCenter(0, 0)
     self:setSize(400, 240)

@@ -3,11 +3,11 @@ class('Player').extends(playdate.graphics.sprite)
 local JUMP_VELOCITY <const> = -290
 local WALK_VELOCITY <const> = 150
 local MAX_FALL_VELOCITY <const> = 600
-local MAX_JUMP_VELOCITY <const> = -420
+local MAX_JUMP_VELOCITY <const> = -520
 local STRAVING_ACCELERATION <const> = 2000
 local STRAVING_VELOCITY <const> = WALK_VELOCITY / 1.2
-local dt <const> = 1 / 50
-local GRAVITY_CONSTANT <const> = 1600
+local dt <const> = 1 / 30
+local GRAVITY_CONSTANT <const> = 1300
 
 local Point <const> = playdate.geometry.point
 local vector2D <const> = playdate.geometry.vector2D

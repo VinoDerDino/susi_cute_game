@@ -69,18 +69,18 @@ function Twine:update()
             self.progressBar:setVisible(false)
         else
             self:updateProgressBarImage()
+            self.idleTimer += 1
+            if self.idleTimer >= 8 then
+                self.idleTimer = 0
+                self.idleImageIndex += 1
+                if self.idleImageIndex > 3 then
+                    self.idleImageIndex = 1
+                end
+                self:setImage(twineImageTable:getImage(self.idleImageIndex))
+            end
         end
     elseif not self.fullGrown then
         self.progressBar:setVisible(false)
-        self.idleTimer += 1
-        if self.idleTimer >= 20 then
-            self.idleTimer = 0
-            self.idleImageIndex += 1
-            if self.idleImageIndex > 3 then
-                self.idleImageIndex = 1
-            end
-            self:setImage(twineImageTable:getImage(self.idleImageIndex))
-        end
     end
 end
 

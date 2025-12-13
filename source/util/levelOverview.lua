@@ -73,7 +73,7 @@ function LevelOverview:setNewPosY(yOffset)
 end
 
 function LevelOverview:update()
-    local step = 10
+    local step = 16
 
     local lastX = self._x
 

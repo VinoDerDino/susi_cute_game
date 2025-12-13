@@ -16,8 +16,8 @@ function FloatingPlatform:init(x, y, endY)
     self.startY = y
     self.endY = endY
     self.progress = 0
-    self.speedDown = 0.5
-    self.speedUp = 0.3
+    self.speedDown = 0.8333
+    self.speedUp = 0.5
 
     self:moveTo(x, y)
 

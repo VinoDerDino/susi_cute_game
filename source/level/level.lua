@@ -164,13 +164,23 @@ function Level:setupTriggers()
     end
 end
 
+function Level:getSocks()
+    local socks = {}
+    for i, obj in ipairs(self.objects) do
+        if obj.isSockProp then
+            table.insert(socks, obj)
+        end
+    end
+    return socks
+end
+
 function Level:movePlayer()
 
-    if self.player.position.x < 0 then
-        self.player.position.x = 0
+    if self.player.position.x < 10 then
+        self.player.position.x = 10
         self.player.velocity.x = 0
-    elseif self.player.position.x > self.WorldWidth then
-        self.player.position.x = self.WorldWidth
+    elseif self.player.position.x > (self.WorldWidth - 10) then
+        self.player.position.x = (self.WorldWidth - 10)
         self.player.velocity.x = 0
     end
 

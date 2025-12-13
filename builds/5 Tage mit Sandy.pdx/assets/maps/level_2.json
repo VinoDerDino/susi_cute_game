@@ -1053,7 +1053,7 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":true,
+         "visible":false,
          "x":0,
          "y":0
         }, 
@@ -1246,7 +1246,7 @@
                         {
                          "name":"dialogue",
                          "type":"string",
-                         "value":"Ahh da bist du ja wieder!\n\nWie hast du mich denn hier gefunden? Eigentlich ist das mein geheimes Versteck.\n\n...\n\nDa komm ich doch glatt auf eine Idee!\n\n_Lass uns verstecken spielen!_\n\nIch glaube, dass es hier ein echt gutes Versteck war. Aber leider bin ich mir nicht mehr sicher, in welchem Raum das gab.\n\nKomm, wir beginnen mit dem Raum rechts von uns. Ich glaube das koennte der sein.\n\nIch warte dort auf dich!"
+                         "value":"So, jetzt komm mein _ultimatives Versteck!_\n\nDer Weg wird hart. Ich glaube aber ganz fest an dich, dass du mich wieder finden wirst!\n\nGib mir bitte wieder einen kleinen Vorsprung, dann darfst du beginnen und mich suchen.\n\nViel Erfolg!"
                         }, 
                         {
                          "name":"isFirstStep",
@@ -1284,7 +1284,7 @@
                         {
                          "name":"dialogue",
                          "type":"string",
-                         "value":"Tollll!\n\nDu hast mich ja wieder gefunden!\n\nDas muessen wir unbedingt nochmal machen, oder?\n\nIch muss schon sagen, dass du eine ausgezeichnete Suchering bist! Ich haette *nieeeee* gedacht, dass du mich so schnell finden wirst.\n\nDurch das ganze Spielen habe ich aber grossen Hunger bekommen. Magst du mit mir kommen? Dann machen wir eine kleine Pause."
+                         "value":"Tollll!\n\nDu hast mich wieder gefunden!\n\nDas muessen wir unbedingt nochmal machen, oder?\n\nIch muss schon sagen, dass du eine ausgezeichnete Sucherin bist! Ich haette *nieeeee* gedacht, dass du mich so schnell finden wirst.\n\nDurch das ganze Spielen habe ich aber grossen Hunger bekommen. Magst du mit mir kommen? Dann machen wir eine kleine Pause."
                         }, 
                         {
                          "name":"isFirstStep",
@@ -1569,7 +1569,7 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":true,
+         "visible":false,
          "x":0,
          "y":0
         }],

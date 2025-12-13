@@ -29,6 +29,18 @@ function SockProp:init(id, x, y)
     self.isSockProp = true
 end
 
+function SockProp:getImage()
+    if self.sock.owned then
+        return self.sock.images:getImage(self.sock_id)
+    else
+        return self.sock.images:getImage(SOCK_ALREADY_FOUND)
+    end
+end
+
+function SockProp:getOwnedImage()
+    return self.sock.images:getImage(self.sock_id)
+end
+
 function SockProp:animateFound()
     self.animationTimer += 1
 

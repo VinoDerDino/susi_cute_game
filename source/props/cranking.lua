@@ -4,6 +4,7 @@ local TRIGGER_DISTANCE <const> = 50
 local MAX_CRANK_VALUE <const> = 100
 local CRANK_DEPLEATION_RATE <const> = 4
 local CRANK_SENSITIVITY <const> = 15
+local MOMENTUM_DECAY_PER_SECOND <const> = 0.2 * 30
 
 local gfx <const> = playdate.graphics
 local Point <const> = playdate.geometry.point
@@ -66,7 +67,7 @@ function Cranking:updateCrank()
                 self.crankMomentum = math.abs(ticks)
             end
 
-            self.crankMomentum = math.max(0, self.crankMomentum - 0.2)
+            self.crankMomentum = math.max(0, self.crankMomentum - 0.333)
         end
      end
 

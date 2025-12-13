@@ -16,14 +16,11 @@ GameState.data = {
         cranking = false,
         twineGrowth = false,
     },
-    settings = {
-        saving = false,
-    },
     level = {
         level1 = true,
         level2 = true,
         level3 = true,
-        level4 = false,
+        level4 = true,
         level5 = true,
     },
     socks = {
@@ -62,7 +59,9 @@ GameState.game = {
     menuScreen = nil,
     levelMenuScreen = nil,
     helpScreen = nil,
-    showCrank = false
+    showCrank = false,
+    currentLevelIndex = 0,
+    dt = 0
 }
 
 GameState.states = {
@@ -83,37 +82,39 @@ GameState.consts = {
 }
 
 function GameState:load()
-    local ok, t = pcall(playdate.datastore.read, self.filename)
-    if ok and type(t) == "table" then
-        self.data = t
+    local data = playdate.datastore.read()
+    if data then
+        print("Data imported")
+        printTable(data)
+        self.data.level = data.level or self.data.level
+        self.data.socks = data.socks or self.data.socks
     end
 end
 
 function GameState:save()
-    pcall(playdate.datastore.write, self.data, self.filename)
+    if true then return end
+    local gameData = {
+        level = self.data.level,
+        socks = self.data.socks,
+    }
+    playdate.datastore.write(gameData)
 end
 
 function GameState:setMultiUnlocks(unlockTable)
     for key, value in pairs(unlockTable) do
         self.data.unlocked[key] = value
     end
-    if self.data.settings.saving then
-        self:save()
-    end
+    self:save()
 end
 
 function GameState:unlock(key)
     self.data.unlocked[key] = true
-    if self.data.settings.saving then
-        self:save()
-    end
+    self:save()
 end
 
 function GameState:lock(key)
     self.data.unlocked[key] = nil
-    if self.data.settings.saving then
-        self:save()
-    end
+    self:save()
 end
 
 function GameState:isUnlocked(key)
@@ -122,9 +123,7 @@ end
 
 function GameState:setSetting(key, value)
     self.data.settings[key] = value
-    if self.data.settings.saving then
-        self:save()
-    end
+    self:save()
 end
 
 function GameState:getSetting(key, default)
@@ -142,8 +141,10 @@ function GameState:setCurrentLevel(levelId)
     }
 
     if levelPaths[levelId] then
+        self.game.currentLevelIndex = levelId
         self.game.nextLevel = Level(levelPaths[levelId])
     else
+        self.game.currentLevelIndex = 0
         self.game.currentLevel = nil
     end
 end
@@ -200,6 +201,39 @@ function GameState:isInState(state)
     return self.currentState == state
 end
 
+local menuBackgroundImage = playdate.graphics.image.new("assets/images/ui/menuImage")
+function GameState:constructMenuImage()
+    if self.currentState ~= self.states.LEVEL then return end
+
+    local socks = self.game.currentLevel:getSocks()
+
+    table.sort(socks, function(a, b)
+        return a.sock_id < b.sock_id
+    end)
+
+    local menuImage = gfx.image.new(400, 240)
+    gfx.pushContext(menuImage)
+        menuBackgroundImage:draw(0,0)
+
+        local drawHeight = 240
+        local sockSize = 20
+        local spacing = drawHeight / #socks
+
+        for i, sockData in ipairs(socks) do
+            local drawX = 7
+            local drawY = math.floor((i - 1) * spacing + (spacing - sockSize) / 2)
+            sockData:getImage():draw(drawX, drawY)
+            if sockData.sock.owned then
+                gfx.drawText("Besitzt du", drawX + sockSize + 5, drawY + 4)
+            else
+                gfx.drawText("Musst du noch finden", drawX + sockSize + 5, drawY + 4)
+            end
+        end
+    gfx.popContext()
+
+    playdate.setMenuImage(menuImage)
+end
+
 function GameState:draw()
     local state = self.currentState
     if state == nil then return end
@@ -253,7 +287,10 @@ function GameState:init()
     self.socks = {}
     for i = 1, 25 do
         self.socks[i] = Sock(i)
-        self.socks[i].owned = self.data.socks[i]
+        if self.data.socks[i] then
+            print("Unlocked sock "..i)
+            self.socks[i]:setOwned()
+        end
     end
     self:setState(self.states.MENU)
 end
@@ -267,6 +304,9 @@ function GameState:catchEvent(eventName, eventData)
         self:setState(self.states.LEVEL_MENU)
     elseif eventName == "enableFourthLevel" then
         self.data.level.level4 = true
+        self:setState(self.states.LEVEL_MENU)
+    elseif eventName == "enableFifthLevel" then
+        self.data.level.level5 = true
         self:setState(self.states.LEVEL_MENU)
     elseif eventName == "endLevel" then
         self:setState(self.states.LEVEL_MENU)

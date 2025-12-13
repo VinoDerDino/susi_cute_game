@@ -117,6 +117,8 @@ function Sock:setOwned()
     self:setImage(self.images:getImage(self.sock_id))
     self.owned = true
     self.isNew = true
+
+    GameState.data.socks[self.sock_id] = true
 end
 
 function Sock:showPopupText()
