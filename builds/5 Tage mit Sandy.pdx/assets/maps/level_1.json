@@ -1742,7 +1742,7 @@
                         {
                          "name":"dialogue",
                          "type":"string",
-                         "value":"Ach mist, du warst dann doch schneller als ich.\n\nVielen Dank nochmal, dass du mich aus diesem komischen Raum gerettet hast!\n\nIch habe leider keine Socken bekommen, aber hoffentlich konntest du alle finden.\n\nVielleicht gewinne ich ja beim n\u00e4chsten Mal!\n\nBis dann..."
+                         "value":"Ach mist, du warst dann doch schneller als ich.\n\nVielen Dank nochmal, dass du mich aus diesem komischen Raum gerettet hast!\n\nIch habe leider keine Socken bekommen, aber hoffentlich konntest du alle finden.\n\nVielleicht gewinne ich ja beim naechsten Mal!\n\nBis dann..."
                         }, 
                         {
                          "name":"nextStep",

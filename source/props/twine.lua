@@ -29,6 +29,8 @@ function Twine:init(x, y, endY)
     self.idleTimer = 0
     self.idleImageIndex = 1
 
+    self.lastCrankZone = "low"
+
     self.isTwine = true
 end
 
@@ -57,6 +59,18 @@ function Twine:spawnStemSegment(yPosition)
     SoundManager:playSound(SoundManager.kGrow)
 end
 
+function Twine:getCrankZone()
+    if self.crankValue < 0.25 then
+        return "low"
+    elseif self.crankValue < 0.5 then
+        return "mid"
+    elseif self.crankValue < 0.75 then
+        return "high"
+    else
+        return "max"
+    end
+end
+
 function Twine:update()
     if not self.fullGrown and GameState.data.unlocked.twineGrowth then
         self:updateCrank(GameState.game.currentLevel.player)
@@ -77,6 +91,20 @@ function Twine:update()
                     self.idleImageIndex = 1
                 end
                 self:setImage(twineImageTable:getImage(self.idleImageIndex))
+            end
+
+            local zone = self:getCrankZone()
+
+            if zone ~= self.lastCrankZone then
+                if zone == "low" then
+                    SoundManager:playSound(SoundManager.kPlantLow)
+                elseif zone == "mid" then
+                    SoundManager:playSound(SoundManager.kPlantMid)
+                elseif zone == "high" then
+                    SoundManager:playSound(SoundManager.kPlantHigh)
+                end
+
+                self.lastCrankZone = zone
             end
         end
     elseif not self.fullGrown then

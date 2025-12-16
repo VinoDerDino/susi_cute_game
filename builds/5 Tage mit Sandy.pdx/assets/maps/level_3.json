@@ -1622,7 +1622,7 @@
                         {
                          "name":"dialogue",
                          "type":"string",
-                         "value":"Siehst du die schwebende Insel ueber uns? Wir muessen da hoch kommen.\n\nDa liegt etwas, womit ich den Eingang oeffnen kann.\n\nUm da hoch zu kommen, geht es erstmal hier runter.\n\nFolge einfach den Weg und dann treffen wir uns gleich wieder!"
+                         "value":"Siehst du die schwebende Insel ueber uns? Wir muessen da hoch kommen.\n\nDa liegt etwas, womit ich den Eingang oeffnen kann.\n\nUm da hoch zu kommen, geht es erstmal hier runter.\n\nFolge einfach dem Weg und dann treffen wir uns gleich wieder!"
                         }, 
                         {
                          "name":"isFirstStep",

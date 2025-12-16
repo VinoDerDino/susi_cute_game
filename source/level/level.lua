@@ -203,6 +203,8 @@ function Level:movePlayer()
     self.player:setInteracting(false)
     self.player:setOnPlatform(nil)
 
+    local canBeOnPlatform = true
+
     for i = 1, len do
         local c = collisions[i]
 
@@ -210,6 +212,7 @@ function Level:movePlayer()
             if c.normal.y < 0 then
                 self.player:setOnGround(true)
                 self.player.velocity.y = 0
+                canBeOnPlatform = false
             elseif c.normal.y > 0 then
                 self.player.velocity.y = 100
                 if not self.player.isClimbing then
@@ -220,8 +223,7 @@ function Level:movePlayer()
             if c.normal.y < 0 then
                 self.player:setOnGround(true)
                 self.player:setOnPlatform(c.other)
-                self.player.velocity.y = math.min(self.player.velocity.y, 0)
-                self.player.position.x += c.other.delta.x
+                
             elseif c.normal.y > 0 then
                 if not self.player.isClimbing then
                     SoundManager:playSound(SoundManager.kHeadbut)
@@ -262,6 +264,14 @@ function Level:movePlayer()
             end
         elseif c.other.isSockProp then
             c.other:hit()
+        end
+    end
+
+    if canBeOnPlatform then
+        local platform = self.player.onPlatform
+        if platform then
+            self.player.velocity.y = math.min(self.player.velocity.y, 0)
+            self.player.position.x += platform.delta.x
         end
     end
 

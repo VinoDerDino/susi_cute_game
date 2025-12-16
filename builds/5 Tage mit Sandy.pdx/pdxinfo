@@ -1,8 +1,9 @@
 name=5 Tage mit Sandy
 author=Vincent Berger
-description=
+description=Ein Spiel fuer meine liebe Susi
 bundleID=
 version=1.0.0
+imagePath=assets/images/launcher
 buildNumber=1
 pdxversion=30002
-buildtime=818957437
+buildtime=819222805

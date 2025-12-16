@@ -1053,7 +1053,7 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":false,
+         "visible":true,
          "x":0,
          "y":0
         }, 
@@ -1142,7 +1142,7 @@
                         {
                          "name":"dialogue",
                          "type":"string",
-                         "value":"Och manno...\n\nDu hast mich ja aber viel zu schnell gefunden.\n\nLass uns das gleich nochmal versuchen!\n\nVielleicht finde ich ja im naechsten Raum ein besseres Versteck. Du wirst *eeewwiiiiiiiig brauchen*, bis du mich gefunden hast\n\n_hihi_\n\nIch geh schonmal vor. Du findest mich dann wieder im ersten Raum.\n\nDann zeige ich dir mein naechstes Versteck!"
+                         "value":"Och manno...\n\nDu hast mich ja aber viel zu schnell gefunden.\n\nLass uns das gleich nochmal versuchen!\n\nVielleicht finde ich ja im naechsten Raum ein besseres Versteck. Du wirst *eeewwiiiiiiiig brauchen*, bis du mich gefunden hast.\n\n_hihi_\n\nIch geh schonmal vor. Du findest mich dann wieder im ersten Raum.\n\nDann zeige ich dir mein naechstes Versteck!"
                         }, 
                         {
                          "name":"isFirstStep",
@@ -1569,7 +1569,7 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":false,
+         "visible":true,
          "x":0,
          "y":0
         }],

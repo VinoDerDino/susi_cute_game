@@ -6,6 +6,9 @@ SoundManager.kClick = 'click'
 SoundManager.kClimb = 'climb'
 SoundManager.kDeath = 'death'
 SoundManager.kGrow = 'grow'
+SoundManager.kPlantLow = 'plant_low'
+SoundManager.kPlantMid = 'plant_mid'
+SoundManager.kPlantHigh = 'plant_high'
 SoundManager.kHeadbut = 'headbut'
 SoundManager.kJump = 'jump'
 SoundManager.kLand = 'land'
@@ -34,6 +37,9 @@ SoundManager.sounds = {
     [SoundManager.kSwoosh] = pdfxr.synth.new("assets/sfx/swoosh"),
     [SoundManager.kSpring] = pdfxr.synth.new("assets/sfx/spring"),
     [SoundManager.kCollect] = pdfxr.synth.new("assets/sfx/collect"),
+    [SoundManager.kPlantLow] = pdfxr.synth.new("assets/sfx/plant_low"),
+    [SoundManager.kPlantMid] = pdfxr.synth.new("assets/sfx/plant_mid"),
+    [SoundManager.kPlantHigh] = pdfxr.synth.new("assets/sfx/plant_high"),
 }
 
 function SoundManager:playSound(name)
