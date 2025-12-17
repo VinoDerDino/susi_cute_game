@@ -52,8 +52,6 @@ function Sock:init(id)
     self.images = gfx.imagetable.new("assets/images/socks/socks")
     self:setImage(self.images:getImage(SOCK_NOT_FOUND))
 
-    print("Sock id:", id)
-
     local pos = positions[id]
 
     self:moveTo(pos.x, pos.y + INTRO_OFFSET)
@@ -76,40 +74,6 @@ function Sock:init(id)
     self.isNewIndicator = gfx.sprite.new(gfx.image.new("assets/images/socks/new_indicator"))
     self.isNewIndicator:moveTo(self.x, self.y - 5)
     self.isNewIndicator:setCenter(0, 0)
-
-    self:setupPopupText()
-end
-
-function Sock:setupPopupText()
-    local _text = "Du darfst Briefumschlag Nummer _" .. tostring(self.sock_id) .. "_ aufmachen!"
-    self.dialogueBox = pdDialogueBox(_text, 200, 50, sasser_slab_family)
-    self.dialogueBox:setPadding(4)
-
-    function self.dialogueBox:drawText(x, y, text)
-        playdate.graphics.setImageDrawMode(playdate.graphics.kDrawModeFillWhite)
-        gfx.drawTextAligned(text, x + self.width / 2 - 4, y, kTextAlignment.center)
-    end
-
-    function self.dialogueBox:drawBackground(x, y)
-        playdate.graphics.setColor(playdate.graphics.kColorBlack)
-        playdate.graphics.fillRect(x, y, self.width, self.height)
-        playdate.graphics.setColor(playdate.graphics.kColorWhite)
-        playdate.graphics.drawRect(x, y, self.width, self.height)
-        playdate.graphics.setColor(playdate.graphics.kColorBlack)
-    end
-
-    function self.dialogueBox:drawPrompt(x, y)
-        pdDialogueBox.arrowPrompt(x + self.width - 12, y + self.height - 10, gfx.kColorWhite)
-    end
-
-    function self.dialogueBox:onOpen()
-        playdate.inputHandlers.push(self:getInputHandlers())
-        self:finishDialogue()
-    end
-
-    function self.dialogueBox:onClose()
-        playdate.inputHandlers.pop()
-    end
 end
 
 function Sock:setOwned()
@@ -119,12 +83,6 @@ function Sock:setOwned()
     self.isNew = true
 
     GameState.data.socks[self.sock_id] = true
-end
-
-function Sock:showPopupText()
-    if self.dialogueBox then
-       self.dialogueBox:enable()
-    end
 end
 
 function Sock:drawAt(x, y)

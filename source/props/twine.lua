@@ -29,12 +29,13 @@ function Twine:init(x, y, endY)
     self.idleTimer = 0
     self.idleImageIndex = 1
 
-    self.lastCrankZone = "low"
+    self.lastCrankZone = "idle"
 
     self.isTwine = true
 end
 
 function Twine:destroy()
+    Twine.super.destroy(self)
     gfx.sprite.removeSprites(self.segments)
 end
 
@@ -60,14 +61,14 @@ function Twine:spawnStemSegment(yPosition)
 end
 
 function Twine:getCrankZone()
-    if self.crankValue < 0.25 then
-        return "low"
-    elseif self.crankValue < 0.5 then
-        return "mid"
-    elseif self.crankValue < 0.75 then
+    if self.crankValue > 75 then
         return "high"
+    elseif self.crankValue > 50 then
+        return "mid"
+    elseif self.crankValue > 25 then
+        return "low"
     else
-        return "max"
+        return "idle"
     end
 end
 

@@ -2145,6 +2145,39 @@
                  "width":0,
                  "x":1800,
                  "y":560
+                }, 
+                {
+                 "height":0,
+                 "id":362,
+                 "name":"Sandy_13_2",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"dialogue",
+                         "type":"string",
+                         "value":"Super!\n\nJetzt hast du auch den letzten Hebel erwischt! Bis dann."
+                        }, 
+                        {
+                         "name":"isFirstStep",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"nextStep",
+                         "type":"object",
+                         "value":278
+                        }, 
+                        {
+                         "name":"onDialogueEnd",
+                         "type":"string",
+                         "value":""
+                        }],
+                 "rotation":0,
+                 "type":"Sandy",
+                 "visible":true,
+                 "width":0,
+                 "x":1500,
+                 "y":940
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -2811,6 +2844,60 @@
                  "width":60,
                  "x":1920,
                  "y":240
+                }, 
+                {
+                 "height":25,
+                 "id":361,
+                 "name":"trigger8",
+                 "properties":[
+                        {
+                         "name":"data",
+                         "type":"object",
+                         "value":173
+                        }, 
+                        {
+                         "name":"oneTime",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"toEmit",
+                         "type":"string",
+                         "value":"sandyGoToStep"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":40,
+                 "x":980,
+                 "y":235
+                }, 
+                {
+                 "height":40,
+                 "id":363,
+                 "name":"trigger9",
+                 "properties":[
+                        {
+                         "name":"data",
+                         "type":"object",
+                         "value":362
+                        }, 
+                        {
+                         "name":"oneTime",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"toEmit",
+                         "type":"string",
+                         "value":"sandyGoToStep"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":40,
+                 "x":1540,
+                 "y":760
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -2819,7 +2906,7 @@
          "y":0
         }],
  "nextlayerid":8,
- "nextobjectid":361,
+ "nextobjectid":364,
  "orientation":"orthogonal",
  "properties":[
         {

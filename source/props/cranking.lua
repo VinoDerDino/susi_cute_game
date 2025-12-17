@@ -40,14 +40,23 @@ function Cranking:init(x, y)
     self.crankValueChanged = false
 end
 
+function Cranking:destroy()
+    gfx.sprite.remove(self.progressBar)
+end
+
 function Cranking:updatePlayerDistance(playerPosition)
     local dist = self.position:distanceToPoint(playerPosition)
     self.isPlayerNear = dist < TRIGGER_DISTANCE
 
-    -- local playerRoomX = math.floor(playerPosition.x / 400) + 1
-    -- local playerRoomY = math.floor(playerPosition.y / 240) + 1
+    if self.crankValue <= 0 then
+        self.isPlayerInSameRoom = false
+        return
+    end
 
-    -- self.isPlayerInSameRoom = (playerRoomX == self.roomX) and (playerRoomY == self.roomY)
+    local playerRoomX = math.floor(playerPosition.x / 400) + 1
+    local playerRoomY = math.floor(playerPosition.y / 240) + 1
+
+    self.isPlayerInSameRoom = (playerRoomX == self.roomX) and (playerRoomY == self.roomY)
 end
 
 function Cranking:updateCrank()

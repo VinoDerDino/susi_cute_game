@@ -47,6 +47,7 @@ function Lever:usage()
     if playdate.buttonIsPressed(playdate.kButtonB) then
         self.isUsed = true
 
+        SoundManager:playSound(SoundManager.kClick)
         if self.callback then
             EventSystem:emitEvent(self.callback)
         end

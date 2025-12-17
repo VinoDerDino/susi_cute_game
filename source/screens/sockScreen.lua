@@ -3,7 +3,7 @@ import 'util/sock'
 class("SockScreen").extends(playdate.graphics.sprite)
 
 local targetH = 100
-local targetW = 250
+local targetW = 260
 local startW  = 20
 
 local centerW = 400
@@ -161,6 +161,14 @@ function SockScreen:update()
     end
 end
 
+local texts = {
+    [1] = "Du darfst einen gelben Briefumschlag aufmachen! Hab ganz viel Spass damit <3",
+    [2] = "DU darfst einen beigen Briefumschlag aufmachen! Hab ganz viel Spass damit <3",
+    [3] = "Du darfst einen roten Briefumschlag aufmachen! Hab ganz viel Spass damit <3",
+    [4] = "Du darfst einen blauen Briefumschlag aufmachen! Hab ganz viel Spass damit <3",
+    [5] = "Du darfst einen pinken Briefumschlag aufmachen! Hab ganz viel Spass damit <3",
+}
+
 function SockScreen:drawScreen()
     if not self.isNineSliceVisible then return end
     if self.phase == 1 then
@@ -190,8 +198,8 @@ function SockScreen:drawScreen()
 
     local text = "Du musst die Socke in einem Level finden! Wenn du Hilfe brauchst, frag Winnie :)"
     if sock.owned then
-         text = "Du darfst dein Geschenk Nummer *" .. tostring(self.selectedSockIndex) ..
-                "* aufmachen! Hab ganz viel Spass damit <3"
+        local textIndex = math.floor(sock.sock_id / 5) + 1
+         text = texts[textIndex]
     end
 
     local inset = 20

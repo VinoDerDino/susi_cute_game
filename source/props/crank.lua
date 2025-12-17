@@ -18,6 +18,10 @@ function Crank:init(x, y, connectedProp)
 
     self.imageIndex = 1
 
+    self.sameRoom = false
+    self.roomX = math.floor(x / 400) + 1
+    self.roomY = math.floor(y / 240) + 1
+
     self:setZIndex(500)
     self:setCenter(0.5, 1)
     self:moveTo(x, y)
@@ -39,7 +43,9 @@ function Crank:update()
     if self.imageIndex ~= newIndex then
         self.imageIndex = newIndex
         self:setImage(crankImages:getImage(self.imageIndex))
-        SoundManager:playSound(SoundManager.kClick)
+        if self.isPlayerInSameRoom then
+            SoundManager:playSound(SoundManager.kClick)
+        end
     end
 
     if self.crankValueChanged and self.connectedProp and self.connectedProp.setCrankValue then

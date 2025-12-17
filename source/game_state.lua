@@ -18,10 +18,10 @@ GameState.data = {
     },
     level = {
         level1 = true,
-        level2 = true,
-        level3 = true,
-        level4 = true,
-        level5 = true,
+        level2 = false,
+        level3 = false,
+        level4 = false,
+        level5 = false,
     },
     socks = {
         [1] = false,
@@ -92,7 +92,6 @@ function GameState:load()
 end
 
 function GameState:save()
-    if true then return end
     local gameData = {
         level = self.data.level,
         socks = self.data.socks,
@@ -203,7 +202,7 @@ end
 
 local menuBackgroundImage = playdate.graphics.image.new("assets/images/ui/menuImage")
 function GameState:constructMenuImage()
-    if self.currentState ~= self.states.LEVEL then return end
+    if self.currentState ~= self.states.LEVEL or self.currentOutro then return end
 
     local socks = self.game.currentLevel:getSocks()
 

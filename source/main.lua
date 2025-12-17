@@ -28,16 +28,12 @@ end
 
 setup()
 
-
 function playdate.update()
     GameState.game.showCrank = false
     GameState:draw()
     if GameState.game.showCrank then
         playdate.ui.crankIndicator:draw()
     end
-    gfx.setColor(gfx.kColorWhite)
-    playdate.drawFPS(0,0)
-    gfx.setColor(gfx.kColorBlack)
 end
 
 function playdate.gameWillTerminate()
